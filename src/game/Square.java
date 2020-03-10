@@ -28,6 +28,7 @@ public class Square extends JPanel {
     private class BoardListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
+            board.removeMouseListeners();
             board.sendClick(row, column, "whos");
             System.out.println("testar klick, row: "+row+" column: "+column);
 //            removeMouseListener();
@@ -38,12 +39,14 @@ public class Square extends JPanel {
         addMouseListener(listener);
     }
 
+    public void removeMouseListener(){
+        removeMouseListener(listener);
+    }
+
     public void mark(){
         setBackground(Color.BLACK);
         repaint();
     }
 
-    public void removeMouseListener(){
-        removeMouseListener(listener);
-    }
+
 }

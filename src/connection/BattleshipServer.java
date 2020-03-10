@@ -63,7 +63,7 @@ public class BattleshipServer extends Thread {
                 String msg;
                 while ((msg = in.readLine()) != null) {
 //                    System.out.println("klienttråd läser : "+msg+" trådID: "+threadID);
-                    //validerar drag
+
                     receiveMessageFromClientThread(msg);
                     //skickar
 
@@ -201,6 +201,7 @@ public class BattleshipServer extends Thread {
     }
 
     private synchronized void receiveMessageFromClientThread(String msg){
+        //validerar drag. Kanske snarare ska vara handle message...
         gameController.validateMove(msg);
     }
 

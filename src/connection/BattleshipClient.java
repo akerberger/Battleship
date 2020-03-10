@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
+
+//Byt namn till Player, mer rimligt...
 public class BattleshipClient {
 
 //    private final String DEFAULT_HOST = "127.0.0.1";
@@ -23,7 +25,6 @@ public class BattleshipClient {
     //gör klient-id här som skickas med i klicket
     private boolean isHosting;
 
-//    private ClientWriter out;
 
     private PrintWriter out;
 
@@ -52,8 +53,6 @@ public class BattleshipClient {
             ClientReceiver receiver = new ClientReceiver(socket);
             receiver.start();
 
-
-//            listen(socket);
 
 
         } catch (NumberFormatException e) {
@@ -92,7 +91,6 @@ public class BattleshipClient {
                 //while inputen inte är "quit" eller så...
                 while (true) {
 
-//                    System.out.println("mottagit motståndares klick i BattleshipClient: "+in.readLine());
                     handleReceivedMessage(in.readLine());
                     Thread.sleep(20);
                 }
@@ -121,29 +119,14 @@ public class BattleshipClient {
         return socket;
     }
 
-    private void listen(Socket socket) {
-
-
-    }
-
-
-
-
 
     void handleReceivedMessage(String msg) throws IllegalArgumentException {
 
         System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + msg);
-//        String[] arr = msg.split(" ");
-//        System.out.println(Arrays.toString(arr));
-//        if (arr[3].equals("mine")) {
-//            String[] coordinates = {arr[1], arr[2]};
-////            gameWindow.receiveClick(coordinates);
-//        }
+
         String[] tokens = msg.split(" ");
 
         String messageType = tokens[0];
-
-        System.out.println("ARRAYEN: "+ Arrays.toString(tokens)+" MESSAGE TYPE: "+messageType);
 
 //        if(tokens.length > 1){
             if(messageType.equals("setID")){
@@ -154,7 +137,12 @@ public class BattleshipClient {
                 }
             }else if(messageType.equals("okMove")){
                 markSquaresOnMyBoard(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-            }else if(messageType.equals("changePhase")){
+            }else if(messageType.equals("notOkMove")){
+                //beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
+                boolean addListenerToOwnBoard = true;
+                gameWindow.addMouseListeners(addListenerToOwnBoard);
+            }
+            else if(messageType.equals("changePhase")){
                 String newPhase = tokens[1];
                 if(newPhase.equals("setupPhase")){
                     GameController.setGameState(GameState.SETUP_PHASE);
@@ -162,24 +150,12 @@ public class BattleshipClient {
                 }
 
             }
-//        }
 
-
-//        if (tokens.length > 1 && tokens[0].equals("SetID")) {
-//
-//        } else if (tokens[0].equals("approved")) {
-//            markSquaresOnMyBoard(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-//        } else if (msg.equals("setup")) {
-//            gameWindow.setupPhase();
-//        }
     }
 
     public void sendClick(int row, int column, String whichBoard) {
 
-
         out.println(row + " " + column + " " + id);
-//        System.out.println("sendklick mottaget i BattleshipClient");
-
 
     }
 

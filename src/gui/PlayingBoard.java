@@ -68,11 +68,9 @@ public class PlayingBoard extends JPanel {
             }
         }
 
-
-
     }
 
-    public void addMouseListener() {
+    public void addMouseListeners() {
         for (int row = 1; row <= GameController.BOARD_DIMENSION; row++) {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].addMouseListener();
@@ -81,7 +79,7 @@ public class PlayingBoard extends JPanel {
         }
     }
 
-    public void removeMouseListener() {
+    public void removeMouseListeners() {
         for (int row = 1; row <= GameController.BOARD_DIMENSION; row++) {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].removeMouseListener();

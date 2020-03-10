@@ -5,8 +5,6 @@ import gui.GameWindow;
 
 public class GameController {
 
-    //testkommentar i markSquare-branch
-
     public static GameState gameState = GameState.CONNECTION_PHASE;
 
     public static final int BOARD_DIMENSION = 10;
@@ -61,11 +59,16 @@ public class GameController {
             //som sedan kan användas i kontrollen här
 
             //om det är giltigt, skicka besked till servern att godkänna draget och att klienten ska markera på board
-            if(clickedColumn != -1 && clickedColumn <= BOARD_DIMENSION - 2){
+           if(clickedColumn == -1 || clickedRow == -1){
+               //kasta undantag (kan typ inte hända?)
+           }
+           //giltigt
+            if(clickedColumn <= BOARD_DIMENSION - 2){
 
                 SERVER.sendMessageToClient(clientId,"okMove",clickedRow,clickedColumn);
             }else{
-                //kasta undantag om -1??
+                //om inte giltigt drag -> lägg till muslyssnare
+                SERVER.sendMessageToClient(clientId, "notOkMove", clickedRow, clickedColumn);
             }
 
 

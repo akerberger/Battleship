@@ -71,7 +71,6 @@ public class GameWindow extends JFrame {
     //coordinates[1] = y
     public void receiveClick(String[] coordinates) {
 
-
         SIDE_PANEL.setLabelText("mottaget: " + coordinates[0] + " " + coordinates[1]);
     }
 
@@ -81,14 +80,24 @@ public class GameWindow extends JFrame {
 
     public void setupPhase(){
         SIDE_PANEL.setupPhase();
-        own.addMouseListener();
+        own.addMouseListeners();
     }
 
+    //detta är motsvarande receive click
     public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize){
         boolean horizontal = true;
         own.placeShipOnMyBoard(startRow, startColumn, shipSize, horizontal);
 
         SIDE_PANEL.setLabelText("PLACERAR: "+startRow+" "+startColumn+" ");
+    }
+
+    public void addMouseListeners(boolean toOwnBoard){
+
+        if(toOwnBoard){
+            own.addMouseListeners();
+        }else{
+            opponents.addMouseListeners();
+        }
     }
 
     // /10 eftersom matrisen är 10*10
