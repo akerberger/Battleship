@@ -174,20 +174,22 @@ public class BattleshipClient {
 //        }
     }
 
-    public void sendClick(int x, int y, String whichBoard) {
+    public void sendClick(int row, int column, String whichBoard) {
 
 
-        out.println(x + " " + y + " " + id);
+        out.println(row + " " + column + " " + id);
 //        System.out.println("sendklick mottaget i BattleshipClient");
 
 
     }
 
-    private void markSquaresOnMyBoard(int startColumn, int startRow){
+    private void markSquaresOnMyBoard(int startRow, int startColumn){
         if(GameController.gameState == GameState.SETUP_PHASE){
-            System.out.println("JAAAA");
-            int shipSize = 3; //just nu är det första och enda skeppet som ska placeras 3 rutor stort
-            gameWindow.placeShipOnMyBoard(startColumn, startRow, shipSize);
+
+            //just nu är det första och enda skeppet som ska placeras 3 rutor stort.
+            // Om detta ska funka generellt måste kontroller ske på andra ställen
+            int shipSize = 3;
+            gameWindow.placeShipOnMyBoard(startRow, startColumn, shipSize);
         }
 
     }

@@ -205,12 +205,12 @@ public class BattleshipServer extends Thread {
     }
 
     //from GameController
-    public synchronized void sendMessageToClient(int clientId, String msg, int x, int y){
-        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+x+" "+y);
+    public synchronized void sendMessageToClient(int clientId, String msg, int row, int column){
+        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
         for(ClientHandlerThread clientThread : CLIENT_THREADS){
             if (clientThread.threadID == clientId){
 
-                clientThread.outputMessage(msg+" "+x+" "+y);
+                clientThread.outputMessage(msg+" "+row+" "+column);
             }
         }
 

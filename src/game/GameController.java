@@ -47,8 +47,11 @@ public class GameController {
         String [] tokens =  msg.split(" ");
 
         int clientId = Integer.parseInt(tokens[2]);
-        int clickedColumn= getSquareNumberFromCoordinate(Integer.parseInt(tokens[0]));
-        int clickedRow = getSquareNumberFromCoordinate(Integer.parseInt(tokens[1]));
+//        int clickedColumn= getSquareNumberFromCoordinate(Integer.parseInt(tokens[0]));
+//        int clickedRow = getSquareNumberFromCoordinate(Integer.parseInt(tokens[1]));
+
+        int clickedRow= Integer.parseInt(tokens[0]);
+        int clickedColumn = Integer.parseInt(tokens[1]);
 //        System.out.println("Row: "+clickedRow+" Column: "+clickedColumn);
         if (gameState == GameState.SETUP_PHASE) {
 //            SERVER.broadcastMessage(msg);
@@ -60,7 +63,7 @@ public class GameController {
             //om det är giltigt, skicka besked till servern att godkänna draget och att klienten ska markera på board
             if(clickedColumn != -1 && clickedColumn <= BOARD_DIMENSION - 2){
 
-                SERVER.sendMessageToClient(clientId,"okMove",clickedColumn,clickedRow);
+                SERVER.sendMessageToClient(clientId,"okMove",clickedRow,clickedColumn);
             }else{
                 //kasta undantag om -1??
             }

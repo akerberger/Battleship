@@ -57,10 +57,10 @@ public class GameWindow extends JFrame {
         add(SIDE_PANEL, BorderLayout.EAST);
     }
 
-    public void sendClick(int x, int y, String whos) {
+    public void sendClick(int row, int column, String whos) {
 
 //server.sendClick(x,y, whos);
-        client.sendClick(x, y, whos);
+        client.sendClick(row, column, whos);
 
 //		int row = getColumnFromYCoordinate(x);
 //		SIDE_PANEL.setLabelText( x + " " + y +" "+"from: "+(whos.equals("mine") ? "mine":"opponents"));
@@ -84,10 +84,11 @@ public class GameWindow extends JFrame {
         own.addMouseListener();
     }
 
-    public void placeShipOnMyBoard(int startColumn, int startRow, int shipSize){
-        own.placeShipOnMyBoard(startColumn, startRow, shipSize);
+    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize){
+        boolean horizontal = true;
+        own.placeShipOnMyBoard(startRow, startColumn, shipSize, horizontal);
 
-        SIDE_PANEL.setLabelText("PLACERAR: "+startColumn+" "+startRow+" ");
+        SIDE_PANEL.setLabelText("PLACERAR: "+startRow+" "+startColumn+" ");
     }
 
     // /10 eftersom matrisen är 10*10
