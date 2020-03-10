@@ -3,6 +3,9 @@ package game;
 import connection.BattleshipServer;
 import gui.GameWindow;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameController {
 
     public static GameState gameState = GameState.CONNECTION_PHASE;
@@ -12,8 +15,8 @@ public class GameController {
     private final Square[][] localClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
     private final Square[][] remoteClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
 
-    private boolean localClientPassedSetupStage = false;
-    private boolean remoteClientPassedSetupStage = false;
+    //Id of player that has set up his/her ships. -1 if no player are ready
+    private int readyPlayerId = -1;
 
     private final BattleshipServer SERVER;
 
@@ -36,6 +39,15 @@ public class GameController {
 //
 //    }
 
+    public void twoConnectedPlayers(){
+
+        //onödig kontroll??
+        if(gameState == GameState.CONNECTION_PHASE){
+            SERVER.broadcastMessage("changePhase"+" "+"setupPhase");
+        }
+
+    }
+
     public boolean validateMove(String msg) {
 
         //Denna låg tidigare direkt i klienttråden, som anropade broadcast direkt den fick in ngt meddelande
@@ -44,12 +56,12 @@ public class GameController {
 //        System.out.println(msg);
         String [] tokens =  msg.split(" ");
 
-        int clientId = Integer.parseInt(tokens[2]);
+        int clientId = Integer.parseInt(tokens[0]);
 //        int clickedColumn= getSquareNumberFromCoordinate(Integer.parseInt(tokens[0]));
 //        int clickedRow = getSquareNumberFromCoordinate(Integer.parseInt(tokens[1]));
 
-        int clickedRow= Integer.parseInt(tokens[0]);
-        int clickedColumn = Integer.parseInt(tokens[1]);
+        int clickedRow= Integer.parseInt(tokens[1]);
+        int clickedColumn = Integer.parseInt(tokens[2]);
 //        System.out.println("Row: "+clickedRow+" Column: "+clickedColumn);
         if (gameState == GameState.SETUP_PHASE) {
 //            SERVER.broadcastMessage(msg);
@@ -62,13 +74,25 @@ public class GameController {
            if(clickedColumn == -1 || clickedRow == -1){
                //kasta undantag (kan typ inte hända?)
            }
+
            //giltigt
             if(clickedColumn <= BOARD_DIMENSION - 2){
+                //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
+                int shipSize = 3;
+                SERVER.sendMessageToClient(clientId,"placeShip"+" "+clickedRow+" "+clickedColumn+" "+shipSize);
 
-                SERVER.sendMessageToClient(clientId,"okMove",clickedRow,clickedColumn);
+                if(readyPlayerId == -1){
+                    readyPlayerId = clientId;
+                }else{
+                    //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
+
+                    //Vill man hålla reda på vems tur det är? Isf typ gamestate_remoteplayer, annars bara gamestate_play
+                    SERVER.broadcastMessage("changePhase"+" "+"gamePhase"+" "+ readyPlayerId);
+                }
+
             }else{
                 //om inte giltigt drag -> lägg till muslyssnare
-                SERVER.sendMessageToClient(clientId, "notOkMove", clickedRow, clickedColumn);
+                SERVER.sendMessageToClient(clientId, "notOkMove"+" " + clickedRow +" "+clickedColumn);
             }
 
 
@@ -78,7 +102,19 @@ public class GameController {
                     //om ja - initiera nästa fas av spelet
             // Om inte, skicka meddelande bara till den klienten om felaktigt klick.
             // Gör så att muslyssnare adderas igen.
-        } else {
+        } else if (gameState == GameState.GAME_PHASE){
+            //kontrollera att draget är ok, alltså att rutan som klickas är ledig
+
+            //om inte ok, skicka besked till klienten om notOkMove
+
+            //om ok, broadcasta att markera som hit eller miss med clientId som "avsändare"
+
+            SERVER.broadcastMessage("okMove" +" "+clientId+" "+clickedRow +" "+clickedColumn+" "+"miss");
+            SERVER.initiateNewTurn(clientId);
+
+            //kontrollera spelets status. om inte game over - byt tur
+        }
+        else {
             SERVER.broadcastMessage(msg);
         }
 

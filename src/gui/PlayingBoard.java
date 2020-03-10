@@ -57,6 +57,10 @@ public class PlayingBoard extends JPanel {
         gameWindow.sendClick(row, column, whos);
     }
 
+    public void markShot(int row, int column, boolean isHit){
+        squares[row-1][column-1].markShot(isHit);
+    }
+
 
     public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, boolean horizontal) {
         //just nu ska, i SETUP_PHASE, en båt som är tre rutor lång markeras horisontellt

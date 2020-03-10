@@ -61,13 +61,12 @@ public class BattleshipServer extends Thread {
                 outputMessage("setID "+threadID);
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String msg;
+
                 while ((msg = in.readLine()) != null) {
 //                    System.out.println("klienttråd läser : "+msg+" trådID: "+threadID);
 
                     receiveMessageFromClientThread(msg);
                     //skickar
-
-
 //                    GUI.broadcastedMessage(connection.getInetAddress(), msg);
                     Thread.sleep(20);
                 }
@@ -183,8 +182,8 @@ public class BattleshipServer extends Thread {
             Thread.sleep(1000);}catch(InterruptedException e){e.printStackTrace();}
 
 
-//            gameController.twoConnectedPlayers();
-            broadcastMessage("changePhase"+" "+"setupPhase");
+            gameController.twoConnectedPlayers();
+
 
         } catch (IOException ioe) {
             System.err.println("Couldn't start server: " + ioe);
@@ -206,15 +205,26 @@ public class BattleshipServer extends Thread {
     }
 
     //from GameController
-    public synchronized void sendMessageToClient(int clientId, String msg, int row, int column){
-        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
+    public synchronized void sendMessageToClient(int clientId, String msg){
+
+//        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
+
         for(ClientHandlerThread clientThread : CLIENT_THREADS){
             if (clientThread.threadID == clientId){
 
-                clientThread.outputMessage(msg+" "+row+" "+column);
+                clientThread.outputMessage(msg);
             }
         }
+    }
 
+    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn){
+        for(ClientHandlerThread clientThread : CLIENT_THREADS){
+            if (clientThread.threadID != clientIdOfPreviousTurn){
+
+                clientThread.outputMessage("newTurn");
+                break;
+            }
+        }
     }
 
     public synchronized void broadcastMessage(String msg) {

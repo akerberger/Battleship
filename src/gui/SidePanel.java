@@ -59,6 +59,12 @@ public class SidePanel extends JPanel {
         southPanel.setGameInstructionText("<- Klick on the square \nof your board where \nyour ship should be placed");
     }
 
+    public void gamePhase(){
+        northPanel.setLabelText("GAME PHASE!");
+        southPanel.setShipDescriptionText("");
+        southPanel.setGameInstructionText("Klick on a square \nof opponents board where \nyou want to shoot");
+    }
+
 
     public void setLabelText(String text) {
         northPanel.setLabelText(text);

@@ -78,13 +78,29 @@ public class GameWindow extends JFrame {
         SIDE_PANEL.setLabelText(text);
     }
 
+    public void markShot(int row, int column, boolean onOpponentsBoard, boolean isHit){
+        if(onOpponentsBoard){
+            opponents.markShot(row, column, isHit);
+        }else{
+            own.markShot(row, column, isHit);
+        }
+    }
+
     public void setupPhase(){
         SIDE_PANEL.setupPhase();
         own.addMouseListeners();
     }
 
+    public void gamePhase(boolean iGoFirst){
+        SIDE_PANEL.gamePhase();
+
+        if(iGoFirst){
+            opponents.addMouseListeners();
+        }
+    }
+
     //detta är motsvarande receive click
-    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize){
+    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, boolean onOpponentsBoard){
         boolean horizontal = true;
         own.placeShipOnMyBoard(startRow, startColumn, shipSize, horizontal);
 
