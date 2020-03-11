@@ -25,8 +25,8 @@ public class GameWindow extends JFrame {
     private final PlayingBoard opponents = new PlayingBoard(this, "up");
 
     //    public GameWindow(BattleshipServer server) {
-    public GameWindow(BattleshipClient client, String hostName, int port) {
-        super((client.isHosting() ? "Hosting game at " : "Connected to game at ") +
+    public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
+        super((isHosting ? "Hosting game at " : "Connected to game at ") +
                 hostName + ", through port " + port);
 
         this.client = client;

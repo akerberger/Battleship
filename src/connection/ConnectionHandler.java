@@ -41,8 +41,8 @@ public class ConnectionHandler {
 
         }
 
-        client = new BattleshipClient(hostName, port, isHosting);
-        GameWindow window = new GameWindow(client, hostName, port);
+        client = new BattleshipClient(hostName, port);
+        GameWindow window = new GameWindow(client, hostName, port, isHosting);
         client.setGameWindow(window);
 
     }
