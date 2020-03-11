@@ -37,9 +37,9 @@ public class Square extends JPanel {
 
     public void markShot(boolean isHit) {
         if (isHit) {
-            setBackground(Color.BLUE);
-        }else{
             setBackground(Color.RED);
+        }else{
+            setBackground(Color.BLUE);
         }
     }
 

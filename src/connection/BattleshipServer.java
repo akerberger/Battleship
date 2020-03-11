@@ -204,7 +204,8 @@ public class BattleshipServer extends Thread {
         gameController.validateMove(msg);
     }
 
-    //from GameController
+    //from GameController. ha kontroller här så att det är en enum MessageType och att för varje sådan
+    // typ, att det aktuella meddelandet har rätt parametrar. (eller kontrollera det nån annanstans?
     public synchronized void sendMessageToClient(int clientId, String msg){
 
 //        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);

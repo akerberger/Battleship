@@ -18,6 +18,7 @@ public class PlayingBoard extends JPanel {
 
     private Square[][] squares = new Square[GameController.BOARD_DIMENSION][GameController.BOARD_DIMENSION];
 
+//    private Square [] squares = new Square [GameController.BOARD_DIMENSION^2];
 
     public PlayingBoard(GameWindow gameWindow, String whos) {
         this.gameWindow = gameWindow;
@@ -44,9 +45,9 @@ public class PlayingBoard extends JPanel {
                 add(square);
                 squares[row][column] = square;
             }
-
-
         }
+
+
     }
 
     public String whos() {

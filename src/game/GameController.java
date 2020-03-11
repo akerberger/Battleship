@@ -1,5 +1,6 @@
 package game;
 
+import connection.BattleshipClient;
 import connection.BattleshipServer;
 import gui.GameWindow;
 
@@ -8,12 +9,15 @@ import java.util.List;
 
 public class GameController {
 
+    //borde vara privat och att avläsning sker genom statisk metod.
     public static GameState gameState = GameState.CONNECTION_PHASE;
 
     public static final int BOARD_DIMENSION = 10;
 
     private final Square[][] localClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
     private final Square[][] remoteClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
+
+    List<BattleshipClient> connectedPlayers = new ArrayList<>();
 
     //Id of player that has set up his/her ships. -1 if no player are ready
     private int readyPlayerId = -1;
