@@ -19,9 +19,7 @@ public class BattleshipClient {
 
     private int PORT;
 
-    private PrintWriter out;
-
-
+    private ClientSender out;
 
     private GameWindow gameWindow;
 
@@ -32,7 +30,6 @@ public class BattleshipClient {
 //        HOST = (args.length > 0 ? args[0] : DEFAULT_HOST);
 //        HOST = DEFAULT_HOST;
 
-
         HOST = hostName;
         PORT = port;
         try {
@@ -40,7 +37,7 @@ public class BattleshipClient {
 
             Socket socket = setUpSocket();
 
-            out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            out = new ClientSender(socket);
 
             ClientReceiver receiver = new ClientReceiver(this,socket);
             receiver.start();
@@ -127,58 +124,11 @@ public class BattleshipClient {
                 break;
 
         }
-
-//        if(tokens.length > 1){
-//        if (messageType.equals("setID")) {
-//            if (id != -1) {
-//                throw new IllegalArgumentException(" ID already set in BattleshipClient");
-//            } else {
-//                id = Integer.parseInt(tokens[1]);
-//            }
-//        } else if (messageType.equals("placeShip")) {
-//            markSquaresOnMyBoard(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]));
-//        } else if (messageType.equals("okMove")) {
-//
-//            int senderId = Integer.parseInt(tokens[1]);
-//            int row = Integer.parseInt(tokens[2]);
-//            int column = Integer.parseInt(tokens[3]);
-//            gameWindow.markShot(row, column, senderId == id, tokens[4].equals("hit"));
-//
-//
-//        }else if(msg.equals("newTurn")){
-//            gameWindow.addMouseListeners(false);
-//        }
-//        else if (messageType.equals("notOkMove")) {
-//            //beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
-//            boolean toOwnBoard;
-//            if (GameController.gameState == GameState.SETUP_PHASE) {
-//                toOwnBoard = true;
-//            } else {
-//                toOwnBoard = false;
-//            }
-//            gameWindow.addMouseListeners(toOwnBoard);
-//
-//        } else if (messageType.equals("changePhase")) {
-//            String newPhase = tokens[1];
-//            if (newPhase.equals("setupPhase")) {
-//                GameController.setGameState(GameState.SETUP_PHASE);
-//                gameWindow.setupPhase();
-//            } else if (newPhase.equals("gamePhase")) {
-//
-//                int starterPlayerId = Integer.parseInt(tokens[2]);
-//                GameController.setGameState(GameState.GAME_PHASE);
-//
-//                gameWindow.gamePhase(id == starterPlayerId);
-//
-//            }
-//
-//        }
-
     }
 
     public void sendClick(int row, int column, String whichBoard) {
 
-        out.println(id + " " + row + " " + column);
+        out.sendClick(id, row, column);
 
 
     }
