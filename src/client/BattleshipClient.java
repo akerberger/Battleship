@@ -21,7 +21,7 @@ public class BattleshipClient {
 
     private PrintWriter out;
 
-    private BufferedReader in;
+
 
     private GameWindow gameWindow;
 
@@ -42,7 +42,7 @@ public class BattleshipClient {
 
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
-            ClientReceiver receiver = new ClientReceiver(socket);
+            ClientReceiver receiver = new ClientReceiver(this,socket);
             receiver.start();
 
 
@@ -62,39 +62,7 @@ public class BattleshipClient {
     }
 
     //Behöver vara trådad, annars låser programmet på listen-metoden
-    private class ClientReceiver extends Thread {
-        Socket socket;
 
-        ClientReceiver(Socket socket) {
-            this.socket = socket;
-
-        }
-
-        @Override
-        public void run() {
-            try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                //while inputen inte är "quit" eller så...
-                while (true) {
-
-                    handleReceivedMessage(in.readLine());
-                    Thread.sleep(20);
-                }
-
-            } catch (SocketTimeoutException e) {
-                System.err.println("No response from opponent ");
-                e.printStackTrace();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-
-            }
-        }
-    }
 
     private Socket setUpSocket() throws IOException {
 
@@ -105,7 +73,7 @@ public class BattleshipClient {
         return socket;
     }
 
-    private void handleReceivedMessage(String msg){
+    void handleReceivedMessage(String msg){
         String [] tokens = msg.split(" ");
 
         if(tokens[1].equals("setID")){
