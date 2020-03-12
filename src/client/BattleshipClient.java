@@ -5,6 +5,7 @@ import gui.GameWindow;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 
 //Byt namn till Player, mer rimligt...
@@ -17,10 +18,6 @@ public class BattleshipClient {
     private String HOST;
 
     private int PORT;
-
-
-    //gör klient-id här som skickas med i klicket
-
 
     private PrintWriter out;
 
@@ -63,7 +60,6 @@ public class BattleshipClient {
     public void setGameWindow(GameWindow gameWindow) {
         this.gameWindow = gameWindow;
     }
-
 
     //Behöver vara trådad, annars låser programmet på listen-metoden
     private class ClientReceiver extends Thread {
@@ -123,10 +119,9 @@ public class BattleshipClient {
 
     }
 
-
     void handleGameMessage(String [] msgTokens) throws IllegalArgumentException {
 
-        System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + msgTokens);
+        System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + Arrays.toString(msgTokens));
 
         String gameState = msgTokens[0];
 

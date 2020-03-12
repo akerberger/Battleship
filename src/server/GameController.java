@@ -28,132 +28,106 @@ public class GameController {
         this.SERVER = server;
     }
 
-//    public  void setGameState(GameState newState) {
-//        gameState = newState;
-//    }
 
     public GameState getGameState() {
         return gameState;
     }
 
-//    public void twoConnectedPlayers() {
-////        System.out.println("TVÅ TILLKOPPLADE!");
-//        gameState = GameState.SETUP_PHASE;
-//        SERVER.broadcastMessage("setupPhase");
-//
-//    }
-
-    public void twoConnectedPlayers(){
+    public void twoConnectedPlayers() {
 
         //onödig kontroll??
-        if(gameState == GameState.CONNECTION_PHASE){
+        if (gameState == GameState.CONNECTION_PHASE) {
 
-            SERVER.broadcastMessage(gameState+" "+"changePhase"+" "+"setupPhase");
-            gameState=GameState.SETUP_PHASE;
+            SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
+            gameState = GameState.SETUP_PHASE;
 
         }
-
     }
 
-    public boolean validateMove(String msg) {
+    private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn) {
 
-//        System.out.println("nu är det denna fas: "+ gameState);
-//        System.out.println(msg);
-        String [] tokens =  msg.split(" ");
+        if (clickedColumn == -1 || clickedRow == -1) {
+            throw new IllegalArgumentException();
+        }
 
-        int clientId = Integer.parseInt(tokens[0]);
-        int clickedRow= Integer.parseInt(tokens[1]);
-        int clickedColumn = Integer.parseInt(tokens[2]);
+        //giltigt
+        if (clickedColumn <= BOARD_DIMENSION - 2) {
+            //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
+            int shipSize = 3;
+            SERVER.sendMessageToClient(clientId, gameState + " " + "placeShip" + " " + clickedRow + " " + clickedColumn + " " + shipSize);
 
-//        System.out.println("Row: "+clickedRow+" Column: "+clickedColumn);
-        if (gameState == GameState.SETUP_PHASE) {
-//            SERVER.broadcastMessage(msg);
-            System.out.println("GAMEPHASE: "+gameState+" message: "+msg);
-            //kontrollera att klienten tryckt på en giltig ruta att placera ut första skeppet
-            // (3 rutor horisontellt). Hårdkodata nu, men gör generellt! Typ att skicka med storleken på skeppet
-            //som sedan kan användas i kontrollen här
+            if (readyPlayerId == -1) {
+                readyPlayerId = clientId;
+            } else {
+                //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
 
-            //om det är giltigt, skicka besked till servern att godkänna draget och att klienten ska markera på board
-           if(clickedColumn == -1 || clickedRow == -1){
-               //kasta undantag (kan typ inte hända?)
-           }
-
-           //giltigt
-            if(clickedColumn <= BOARD_DIMENSION - 2){
-                //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
-                int shipSize = 3;
-                SERVER.sendMessageToClient(clientId,gameState+" "+"placeShip"+" "+clickedRow+" "+clickedColumn+" "+shipSize);
-
-                if(readyPlayerId == -1){
-                    readyPlayerId = clientId;
-                }else{
-                    //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
-
-                    //Vill man hålla reda på vems tur det är? Isf typ gamestate_remoteplayer, annars bara gamestate_play
-                    SERVER.broadcastMessage(gameState+" "+"changePhase"+" "+"gamePhase"+" "+ readyPlayerId);
-                    gameState=GameState.GAME_PHASE;
-                }
-
-            }else{
-                //om inte giltigt drag -> lägg till muslyssnare
-                SERVER.sendMessageToClient(clientId,gameState+" "+"notOkMove"+" " + clickedRow +" "+clickedColumn);
+                SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "gamePhase" + " " + readyPlayerId);
+                gameState = GameState.GAME_PHASE;
             }
 
-
-            // markera det i rätt matris i this.
-                // Sätt boolean till true och
-                // kontrollera om den andra boolean är true också
-                    //om ja - initiera nästa fas av spelet
-            // Om inte, skicka meddelande bara till den klienten om felaktigt klick.
-            // Gör så att muslyssnare adderas igen.
-        } else if (gameState == GameState.GAME_PHASE){
-            //kontrollera att draget är ok, alltså att rutan som klickas är ledig
-
-            //om inte ok, skicka besked till klienten om notOkMove
-
-            //om ok, broadcasta att markera som hit eller miss med clientId som "avsändare"
-
-            SERVER.broadcastMessage(gameState+" "+"okMove" +" "+clientId+" "+clickedRow +" "+clickedColumn+" "+"miss");
-            SERVER.initiateNewTurn(clientId,gameState+" "+"newTurn");
-
-            //kontrollera spelets status. om inte game over - byt tur
+        } else {
+            //om inte giltigt drag -> lägg till muslyssnare
+            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
         }
-        else {
-//            SERVER.broadcastMessage(msg);
-        }
-
-
-        return false;
     }
 
-    	private int getSquareNumberFromCoordinate(int coordinate) {
+    public void handleClientClicked(String msg) {
 
-		if (coordinate > 0 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10) {
-			return 1;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 2) {
-			return 2;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 2 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 3) {
-			return 3;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 3 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 4) {
-			return 4;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 4 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 5) {
-			return 5;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 5 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 6) {
-			return 6;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 6 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 7) {
-			return 7;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 7 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 8) {
-			return 8;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 8 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 9) {
-			return 9;
-		} else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 9 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 10) {
-			return 10;
-		}
+        String[] tokens = msg.split(" ");
 
-		return -1;
-	}
+        int clientId = Integer.parseInt(tokens[0]);
+        int clickedRow = Integer.parseInt(tokens[1]);
+        int clickedColumn = Integer.parseInt(tokens[2]);
 
-    private enum GameState{
+        if (gameState == GameState.SETUP_PHASE) {
+            handleClickInSetupPhase(clientId, clickedRow, clickedColumn);
+        } else if (gameState == GameState.GAME_PHASE) {
+            validateMove(clientId, clickedRow, clickedColumn);
+        }
+
+
+    }
+
+    public void validateMove(int clientId, int clickedRow, int clickedColumn) {
+
+
+        SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
+        SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
+
+        //kontrollera spelets status. om inte game over - byt tur
+
+
+
+    }
+
+    private int getSquareNumberFromCoordinate(int coordinate) {
+
+        if (coordinate > 0 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10) {
+            return 1;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 2) {
+            return 2;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 2 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 3) {
+            return 3;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 3 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 4) {
+            return 4;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 4 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 5) {
+            return 5;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 5 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 6) {
+            return 6;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 6 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 7) {
+            return 7;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 7 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 8) {
+            return 8;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 8 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 9) {
+            return 9;
+        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 9 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 10) {
+            return 10;
+        }
+
+        return -1;
+    }
+
+    private enum GameState {
         CONNECTION_PHASE,
         SETUP_PHASE,
         GAME_PHASE;

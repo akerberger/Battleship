@@ -53,7 +53,7 @@ public class BattleshipServer extends Thread {
 
             try {
                 out = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()), true);
-                outputMessage(null+" "+"setID "+threadID);
+                outputMessage("hej"+" "+"setID "+threadID);
 
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String msg;
@@ -197,8 +197,8 @@ public class BattleshipServer extends Thread {
 
     private synchronized void receiveMessageFromClientThread(String msg){
         //validerar drag. Kanske snarare ska vara handle message...
+        gameController.handleClientClicked(msg);
 
-        gameController.validateMove(msg);
     }
 
     //from GameController. ha kontroller här så att det är en enum MessageType och att för varje sådan
