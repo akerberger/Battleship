@@ -1,13 +1,8 @@
-package connection;
-
-import game.GameController;
+package server;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,7 +53,8 @@ public class BattleshipServer extends Thread {
 
             try {
                 out = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()), true);
-                outputMessage("setID "+threadID);
+                outputMessage(null+" "+"setID "+threadID);
+
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String msg;
 
@@ -201,6 +197,7 @@ public class BattleshipServer extends Thread {
 
     private synchronized void receiveMessageFromClientThread(String msg){
         //validerar drag. Kanske snarare ska vara handle message...
+
         gameController.validateMove(msg);
     }
 
@@ -218,11 +215,11 @@ public class BattleshipServer extends Thread {
         }
     }
 
-    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn){
+    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg){
         for(ClientHandlerThread clientThread : CLIENT_THREADS){
             if (clientThread.threadID != clientIdOfPreviousTurn){
 
-                clientThread.outputMessage("newTurn");
+                clientThread.outputMessage(msg);
                 break;
             }
         }

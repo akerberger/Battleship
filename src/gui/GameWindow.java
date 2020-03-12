@@ -1,12 +1,9 @@
 package gui;
 
-import connection.BattleshipClient;
-import connection.BattleshipServer;
+import client.BattleshipClient;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class GameWindow extends JFrame {
 
@@ -116,7 +113,7 @@ public class GameWindow extends JFrame {
         }
     }
 
-    // /10 eftersom matrisen är 10*10
+
 
     //denna är onödig, markera bara samma sak på "mitt" bräde som på motståndarens,
     //det kommer bli samma koordinater

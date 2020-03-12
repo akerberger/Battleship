@@ -1,8 +1,8 @@
 package connection;
 
+import client.BattleshipClient;
 import gui.GameWindow;
-
-import java.util.Scanner;
+import server.BattleshipServer;
 
 public class ConnectionHandler {
 

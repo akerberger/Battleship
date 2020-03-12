@@ -1,14 +1,10 @@
-package connection;
+package client;
 
-import game.GameController;
-import game.GameState;
 import gui.GameWindow;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.Arrays;
-import java.util.List;
 
 
 //Byt namn till Player, mer rimligt...
@@ -22,7 +18,7 @@ public class BattleshipClient {
 
     private int PORT;
 
-    
+
     //gör klient-id här som skickas med i klicket
 
 
@@ -113,48 +109,56 @@ public class BattleshipClient {
         return socket;
     }
 
+    private void handleReceivedMessage(String msg){
+        String [] tokens = msg.split(" ");
 
-    void handleReceivedMessage(String msg) throws IllegalArgumentException {
+        if(tokens[1].equals("setID")){
+            if (id != -1) {
+                throw new IllegalArgumentException(" ID already set in BattleshipClient");
+            }
+            id = Integer.parseInt(tokens[2]);
+        }else{
+            handleGameMessage(tokens);
+        }
 
-        System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + msg);
+    }
 
-        String[] tokens = msg.split(" ");
 
-        String messageType = tokens[0];
+    void handleGameMessage(String [] msgTokens) throws IllegalArgumentException {
+
+        System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + msgTokens);
+
+        String gameState = msgTokens[0];
+
+        String messageType = msgTokens[1];
 
         switch (messageType) {
-            case "setID":
-                if (id != -1) {
-                    throw new IllegalArgumentException(" ID already set in BattleshipClient");
-                }
-                id = Integer.parseInt(tokens[1]);
-                break;
             case "placeShip":
-                markSquaresOnMyBoard(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]));
+                markSquaresOnMyBoard(gameState,Integer.parseInt(msgTokens[2]), Integer.parseInt(msgTokens[3]), Integer.parseInt(msgTokens[4]));
                 break;
             case "okMove":
-                int senderId = Integer.parseInt(tokens[1]);
-                int row = Integer.parseInt(tokens[2]);
-                int column = Integer.parseInt(tokens[3]);
-                gameWindow.markShot(row, column, senderId == id, tokens[4].equals("hit"));
+                int senderId = Integer.parseInt(msgTokens[2]);
+                int row = Integer.parseInt(msgTokens[3]);
+                int column = Integer.parseInt(msgTokens[4]);
+                gameWindow.markShot(row, column, senderId == id, msgTokens[5].equals("hit"));
                 break;
             case "notOkMove":
                 //  beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
 
-                gameWindow.addMouseListeners(GameController.gameState == GameState.SETUP_PHASE);
+                gameWindow.addMouseListeners(gameState.equals("SETUP_PHASE"));
                 break;
 
             case "newTurn":
                 gameWindow.addMouseListeners(false);
                 break;
             case "changePhase":
-                String newPhase = tokens[1];
+                String newPhase = msgTokens[2];
                 if (newPhase.equals("setupPhase")) {
-                    GameController.setGameState(GameState.SETUP_PHASE);
+//                    GameController.setGameState(GameState.SETUP_PHASE);
                     gameWindow.setupPhase();
                 } else if (newPhase.equals("gamePhase")) {
-                    int starterPlayerId = Integer.parseInt(tokens[2]);
-                    GameController.setGameState(GameState.GAME_PHASE);
+                    int starterPlayerId = Integer.parseInt(msgTokens[3]);
+//                    GameController.setGameState(GameState.GAME_PHASE);
                     gameWindow.gamePhase(id == starterPlayerId);
                 }
                 break;
@@ -213,17 +217,19 @@ public class BattleshipClient {
 
         out.println(id + " " + row + " " + column);
 
+
     }
 
     //borde heta markSquaresOnBoard och använda boolean om vilken board det blir...
-    private void markSquaresOnMyBoard(int startRow, int startColumn, int noOfSquares) {
-        if (GameController.gameState == GameState.SETUP_PHASE) {
+    private void markSquaresOnMyBoard(String gamePhase, int startRow, int startColumn, int noOfSquares) {
+        if (gamePhase.equals("SETUP_PHASE")) {
 
+            System.out.println("MARKERA SKEPP I SETUPPHASE!");
             //just nu är det första och enda skeppet som ska placeras 3 rutor stort.
             // Om detta ska funka generellt måste kontroller ske på andra ställen
 
             gameWindow.placeShipOnMyBoard(startRow, startColumn, noOfSquares, false);
-        } else if (GameController.gameState == GameState.GAME_PHASE) {
+        } else if (gamePhase.equals("GAME_PHASE")) {
 
             gameWindow.placeShipOnMyBoard(startRow, startColumn, 1, true);
         }

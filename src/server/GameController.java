@@ -1,7 +1,7 @@
-package game;
+package server;
 
-import connection.BattleshipClient;
-import connection.BattleshipServer;
+import client.BattleshipClient;
+import game.Square;
 import gui.GameWindow;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 public class GameController {
 
     //borde vara privat och att avläsning sker genom statisk metod.
-    public static GameState gameState = GameState.CONNECTION_PHASE;
+    private GameState gameState = GameState.CONNECTION_PHASE;
 
     public static final int BOARD_DIMENSION = 10;
 
@@ -28,9 +28,9 @@ public class GameController {
         this.SERVER = server;
     }
 
-    public static void setGameState(GameState newState) {
-        gameState = newState;
-    }
+//    public  void setGameState(GameState newState) {
+//        gameState = newState;
+//    }
 
     public GameState getGameState() {
         return gameState;
@@ -47,29 +47,28 @@ public class GameController {
 
         //onödig kontroll??
         if(gameState == GameState.CONNECTION_PHASE){
-            SERVER.broadcastMessage("changePhase"+" "+"setupPhase");
+
+            SERVER.broadcastMessage(gameState+" "+"changePhase"+" "+"setupPhase");
+            gameState=GameState.SETUP_PHASE;
+
         }
 
     }
 
     public boolean validateMove(String msg) {
 
-        //Denna låg tidigare direkt i klienttråden, som anropade broadcast direkt den fick in ngt meddelande
-
 //        System.out.println("nu är det denna fas: "+ gameState);
 //        System.out.println(msg);
         String [] tokens =  msg.split(" ");
 
         int clientId = Integer.parseInt(tokens[0]);
-//        int clickedColumn= getSquareNumberFromCoordinate(Integer.parseInt(tokens[0]));
-//        int clickedRow = getSquareNumberFromCoordinate(Integer.parseInt(tokens[1]));
-
         int clickedRow= Integer.parseInt(tokens[1]);
         int clickedColumn = Integer.parseInt(tokens[2]);
+
 //        System.out.println("Row: "+clickedRow+" Column: "+clickedColumn);
         if (gameState == GameState.SETUP_PHASE) {
 //            SERVER.broadcastMessage(msg);
-
+            System.out.println("GAMEPHASE: "+gameState+" message: "+msg);
             //kontrollera att klienten tryckt på en giltig ruta att placera ut första skeppet
             // (3 rutor horisontellt). Hårdkodata nu, men gör generellt! Typ att skicka med storleken på skeppet
             //som sedan kan användas i kontrollen här
@@ -83,7 +82,7 @@ public class GameController {
             if(clickedColumn <= BOARD_DIMENSION - 2){
                 //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
                 int shipSize = 3;
-                SERVER.sendMessageToClient(clientId,"placeShip"+" "+clickedRow+" "+clickedColumn+" "+shipSize);
+                SERVER.sendMessageToClient(clientId,gameState+" "+"placeShip"+" "+clickedRow+" "+clickedColumn+" "+shipSize);
 
                 if(readyPlayerId == -1){
                     readyPlayerId = clientId;
@@ -91,12 +90,13 @@ public class GameController {
                     //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
 
                     //Vill man hålla reda på vems tur det är? Isf typ gamestate_remoteplayer, annars bara gamestate_play
-                    SERVER.broadcastMessage("changePhase"+" "+"gamePhase"+" "+ readyPlayerId);
+                    SERVER.broadcastMessage(gameState+" "+"changePhase"+" "+"gamePhase"+" "+ readyPlayerId);
+                    gameState=GameState.GAME_PHASE;
                 }
 
             }else{
                 //om inte giltigt drag -> lägg till muslyssnare
-                SERVER.sendMessageToClient(clientId, "notOkMove"+" " + clickedRow +" "+clickedColumn);
+                SERVER.sendMessageToClient(clientId,gameState+" "+"notOkMove"+" " + clickedRow +" "+clickedColumn);
             }
 
 
@@ -113,13 +113,13 @@ public class GameController {
 
             //om ok, broadcasta att markera som hit eller miss med clientId som "avsändare"
 
-            SERVER.broadcastMessage("okMove" +" "+clientId+" "+clickedRow +" "+clickedColumn+" "+"miss");
-            SERVER.initiateNewTurn(clientId);
+            SERVER.broadcastMessage(gameState+" "+"okMove" +" "+clientId+" "+clickedRow +" "+clickedColumn+" "+"miss");
+            SERVER.initiateNewTurn(clientId,gameState+" "+"newTurn");
 
             //kontrollera spelets status. om inte game over - byt tur
         }
         else {
-            SERVER.broadcastMessage(msg);
+//            SERVER.broadcastMessage(msg);
         }
 
 
@@ -153,6 +153,12 @@ public class GameController {
 		return -1;
 	}
 
+    private enum GameState{
+        CONNECTION_PHASE,
+        SETUP_PHASE,
+        GAME_PHASE;
 
+
+    }
 
 }

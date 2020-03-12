@@ -30,8 +30,8 @@ public class Square extends JPanel {
         public void mouseClicked(MouseEvent e) {
             board.removeMouseListeners();
             board.sendClick(row, column, "whos");
-            System.out.println("testar klick, row: " + row + " column: " + column);
-//            removeMouseListener();
+
+
         }
     }
 

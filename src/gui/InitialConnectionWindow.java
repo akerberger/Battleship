@@ -26,7 +26,7 @@ public class InitialConnectionWindow extends JFrame {
 
        JPanel buttonPanel = new JPanel();
 
-        JButton connectToRemoteServerBtn = new JButton("Connect to remote server");
+        JButton connectToRemoteServerBtn = new JButton("Join local game");
         buttonPanel.add(connectToRemoteServerBtn);
 
         connectToRemoteServerBtn.addActionListener(e -> {
@@ -34,7 +34,7 @@ public class InitialConnectionWindow extends JFrame {
             setVisible(false);
         });
 
-        JButton createServerBtn = new JButton("Create server");
+        JButton createServerBtn = new JButton("Host local game");
         buttonPanel.add(createServerBtn);
         createServerBtn.addActionListener(e -> {
             connectionHandler.initializeConnection(true);
