@@ -96,11 +96,10 @@ public class Square extends JPanel {
     public void paintComponent(Graphics g){
         super.paintComponent(g);
 
+
         if(hasSunkenShip){
             ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/skull.png");
             g.drawImage(skull.getImage(), 6,6,20,20,this);
-
-
         }
 
 

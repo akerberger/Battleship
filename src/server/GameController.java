@@ -150,6 +150,12 @@ public class GameController {
         SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + sb.toString());
     }
 
+    private void gameOver(int winnerClientId){
+        gameState=GameState.GAME_OVER;
+        SERVER.broadcastMessage(gameState+ " "+"gameOver"+ " "+winnerClientId);
+    }
+
+
     private void testMethod(int clientId, int clickedRow, int clickedColumn) {
 
         boolean hit = false;
@@ -182,8 +188,8 @@ public class GameController {
                     if (hitCount == ship.length) {
                         opponentShips.remove(ship);
                         broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
+
                         if(opponentShips.size()==0){
-                            System.out.println("VINNARE ÄR SPELARE "+clientId);
                             gameOver = true;
                         }
                     }
@@ -206,12 +212,18 @@ public class GameController {
             System.out.println();
         }
 
-//        if(!gameOver){
-//            SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
-//        }
+        if(gameOver){
+            gameOver(clientId);
+        }else{
+            initiateNextTurn(clientId);
 
-        SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
+        }
 
+
+    }
+
+    private void initiateNextTurn(int playerOfCurrentTurn){
+        SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
     }
 
 
@@ -324,7 +336,8 @@ public class GameController {
     private enum GameState {
         CONNECTION_PHASE,
         SETUP_PHASE,
-        GAME_PHASE;
+        GAME_PHASE,
+        GAME_OVER;
 
 
     }

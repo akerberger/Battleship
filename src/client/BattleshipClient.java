@@ -86,7 +86,7 @@ public class BattleshipClient {
 
     }
 
-    void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
+    private void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
 
         System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + Arrays.toString(msgTokens));
 
@@ -136,8 +136,18 @@ public class BattleshipClient {
                     gameWindow.gamePhase(id == starterPlayerId);
                 }
                 break;
+            case "gameOver":
+
+//                System.out.println("VINNARE: ")
+                int winningPlayerId = Integer.parseInt(msgTokens[2]);
+                gameOver(winningPlayerId);
+                break;
 
         }
+    }
+
+    private void gameOver(int winningPlayerId){
+        gameWindow.gameOver(winningPlayerId == id);
     }
 
     public void sendClick(int row, int column) {

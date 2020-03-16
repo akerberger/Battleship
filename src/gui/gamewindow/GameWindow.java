@@ -45,8 +45,7 @@ public class GameWindow extends JFrame {
     private void setUpWindowComponents() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-
-
+//
         own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
         own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
 
@@ -76,6 +75,14 @@ public class GameWindow extends JFrame {
 
     public void setSidePanelText(String text) {
         SIDE_PANEL.setLabelText(text);
+    }
+
+    public void gameOver(boolean isWin){
+        if(isWin){
+            SIDE_PANEL.setLabelText("YOU WIN!");
+        }else{
+            SIDE_PANEL.setLabelText("YOU LOOSE!");
+        }
     }
 
     public void markShot(int row, int column, boolean onOpponentsBoard, boolean isHit) {
