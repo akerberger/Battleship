@@ -154,6 +154,8 @@ public class GameController {
 
         boolean hit = false;
 
+        boolean gameOver = false;
+
         for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
             //if opponents MapEntry
             if (entry.getKey() != clientId) {
@@ -178,9 +180,12 @@ public class GameController {
 
                     }
                     if (hitCount == ship.length) {
-                        System.out.println("HURRRAAAASÄNKDEEET");
                         opponentShips.remove(ship);
                         broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
+                        if(opponentShips.size()==0){
+                            System.out.println("VINNARE ÄR SPELARE "+clientId);
+                            gameOver = true;
+                        }
                     }
                 }
                 if (!hit) {
@@ -201,7 +206,12 @@ public class GameController {
             System.out.println();
         }
 
+//        if(!gameOver){
+//            SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
+//        }
+
         SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
+
     }
 
 

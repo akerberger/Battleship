@@ -14,6 +14,7 @@ public class Square extends JPanel {
     private final int column;
     private final PlayingBoard board;
     private boolean isShot = false;
+    private boolean hasSunkenShip = false;
 
     private SquareListener listener = new SquareListener();
 
@@ -52,8 +53,15 @@ public class Square extends JPanel {
     //Sätt döskalle på sänkt ruta
     public void markSunkenShip(){
         isShot=true;
-        setBackground(Color.YELLOW);
+//        setBackground(Color.YELLOW);
+
+        hasSunkenShip=true;
+
+        repaint();
+
+
     }
+
 
     public void addMouseListener() {
         addMouseListener(listener);
@@ -82,6 +90,20 @@ public class Square extends JPanel {
     public void markPartOfShip() {
         setBackground(Color.BLACK);
         repaint();
+    }
+
+    @Override
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        if(hasSunkenShip){
+            ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/skull.png");
+            g.drawImage(skull.getImage(), 6,6,20,20,this);
+
+
+        }
+
+
     }
 
     @Override
