@@ -1,9 +1,12 @@
-package gui;
+package gui.gamewindow;
 
 import client.BattleshipClient;
+import gamecomponents.ShipPlacementOrientation;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 public class GameWindow extends JFrame {
 
@@ -57,7 +60,7 @@ public class GameWindow extends JFrame {
     public void sendClick(int row, int column, String whos) {
 
 //server.sendClick(x,y, whos);
-        client.sendClick(row, column, whos);
+        client.sendClick(row, column);
 
 //		int row = getColumnFromYCoordinate(x);
 //		SIDE_PANEL.setLabelText( x + " " + y +" "+"from: "+(whos.equals("mine") ? "mine":"opponents"));
@@ -71,48 +74,83 @@ public class GameWindow extends JFrame {
         SIDE_PANEL.setLabelText("mottaget: " + coordinates[0] + " " + coordinates[1]);
     }
 
-    public void setSidePanelText(String text){
+    public void setSidePanelText(String text) {
         SIDE_PANEL.setLabelText(text);
     }
 
-    public void markShot(int row, int column, boolean onOpponentsBoard, boolean isHit){
-        if(onOpponentsBoard){
+    public void markShot(int row, int column, boolean onOpponentsBoard, boolean isHit) {
+
+        if (onOpponentsBoard) {
             opponents.markShot(row, column, isHit);
-        }else{
+        } else {
             own.markShot(row, column, isHit);
         }
     }
 
-    public void setupPhase(){
-        SIDE_PANEL.setupPhase();
-        own.addMouseListeners();
+    public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
+        if (onOpponentsBoard) {
+            opponents.markSunkenShipSquare(row, column);
+        } else {
+            own.markSunkenShipSquare(row, column);
+        }
     }
 
-    public void gamePhase(boolean iGoFirst){
+    public void setupPhase() {
+        SIDE_PANEL.setupPhase();
+        addShipPlacementListener();
+        own.addSquareListeners();
+    }
+
+    private void addShipPlacementListener() {
+
+//        addMouseListener(shipDirectionListener);
+
+        own.requestFocus();
+
+        InputMap inputMap = own.getInputMap();
+        ActionMap actionMap = own.getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "turnShip");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "turnShip");
+        actionMap.put("turnShip", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("SVÄNGSKEPPE");
+                client.switchShipPlacementDirection();
+            }
+        });
+
+
+    }
+
+    public void updateShipPlacementDirection(boolean horizontal) {
+        SIDE_PANEL.setShipDirectionLabelText("Ship direction: " + (horizontal ? "horizontal" : "vertical"));
+    }
+
+    public void gamePhase(boolean iGoFirst) {
         SIDE_PANEL.gamePhase();
 
-        if(iGoFirst){
-            opponents.addMouseListeners();
+        if (iGoFirst) {
+            opponents.addSquareListeners();
         }
     }
 
     //detta är motsvarande receive click
-    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, boolean onOpponentsBoard){
-        boolean horizontal = true;
-        own.placeShipOnMyBoard(startRow, startColumn, shipSize, horizontal);
+    public void placeShipOnBoard(int startRow, int startColumn, int shipSize, ShipPlacementOrientation orientation) {
 
-        SIDE_PANEL.setLabelText("PLACERAR: "+startRow+" "+startColumn+" ");
+        own.placeShipOnMyBoard(startRow, startColumn, shipSize, orientation);
+
+        SIDE_PANEL.setLabelText("Opponent placing ship...");
     }
 
-    public void addMouseListeners(boolean toOwnBoard){
+    public void addMouseListeners(boolean toOwnBoard) {
 
-        if(toOwnBoard){
-            own.addMouseListeners();
-        }else{
-            opponents.addMouseListeners();
+        if (toOwnBoard) {
+            own.addSquareListeners();
+        } else {
+            opponents.addSquareListeners();
         }
     }
-
 
 
     //denna är onödig, markera bara samma sak på "mitt" bräde som på motståndarens,

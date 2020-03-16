@@ -1,10 +1,10 @@
 package client;
 
-import gui.GameWindow;
+import gamecomponents.ShipPlacementOrientation;
+import gui.gamewindow.GameWindow;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.Arrays;
 
 
@@ -23,6 +23,8 @@ public class BattleshipClient {
 
     private GameWindow gameWindow;
 
+    private boolean shipPlacementHorizontal = true;
+
     private int id = -1;
 
     public BattleshipClient(String hostName, int port) {
@@ -39,7 +41,7 @@ public class BattleshipClient {
 
             out = new ClientSender(socket);
 
-            ClientReceiver receiver = new ClientReceiver(this,socket);
+            ClientReceiver receiver = new ClientReceiver(this, socket);
             receiver.start();
 
 
@@ -70,21 +72,21 @@ public class BattleshipClient {
         return socket;
     }
 
-    void handleReceivedMessage(String msg){
-        String [] tokens = msg.split(" ");
+    void handleReceivedMessage(String msg) {
+        String[] tokens = msg.split(" ");
 
-        if(tokens[1].equals("setID")){
+        if (tokens[1].equals("setID")) {
             if (id != -1) {
                 throw new IllegalArgumentException(" ID already set in BattleshipClient");
             }
             id = Integer.parseInt(tokens[2]);
-        }else{
+        } else {
             handleGameMessage(tokens);
         }
 
     }
 
-    void handleGameMessage(String [] msgTokens) throws IllegalArgumentException {
+    void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
 
         System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + Arrays.toString(msgTokens));
 
@@ -94,13 +96,25 @@ public class BattleshipClient {
 
         switch (messageType) {
             case "placeShip":
-                markSquaresOnMyBoard(gameState,Integer.parseInt(msgTokens[2]), Integer.parseInt(msgTokens[3]), Integer.parseInt(msgTokens[4]));
+                ShipPlacementOrientation orientation =
+                        (msgTokens[5].equals("h") ? ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
+                placeShipOnMyBoard(Integer.parseInt(msgTokens[2]),
+                        Integer.parseInt(msgTokens[3]), Integer.parseInt(msgTokens[4]), orientation);
                 break;
             case "okMove":
                 int senderId = Integer.parseInt(msgTokens[2]);
                 int row = Integer.parseInt(msgTokens[3]);
                 int column = Integer.parseInt(msgTokens[4]);
                 gameWindow.markShot(row, column, senderId == id, msgTokens[5].equals("hit"));
+                break;
+            case "sinkShip":
+                int idOfClicker = Integer.parseInt(msgTokens[2]);
+                int shipSize = Integer.parseInt(msgTokens[5]);
+                int tokenIndexOffset = 6;
+                for (int i = 0; i < shipSize; i++) {
+                    gameWindow.markSunkenShipSquare(Integer.parseInt(msgTokens[tokenIndexOffset]), Integer.parseInt(msgTokens[tokenIndexOffset + 1]), idOfClicker == id);
+                    tokenIndexOffset += 2;
+                }
                 break;
             case "notOkMove":
                 //  beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
@@ -126,26 +140,27 @@ public class BattleshipClient {
         }
     }
 
-    public void sendClick(int row, int column, String whichBoard) {
+    public void sendClick(int row, int column) {
 
-        out.sendClick(id, row, column);
-
+        out.sendClick(id, row, column, shipPlacementHorizontal);
 
     }
 
+    public void switchShipPlacementDirection() {
+        shipPlacementHorizontal = !shipPlacementHorizontal;
+        gameWindow.updateShipPlacementDirection(shipPlacementHorizontal);
+    }
+
     //borde heta markSquaresOnBoard och använda boolean om vilken board det blir...
-    private void markSquaresOnMyBoard(String gamePhase, int startRow, int startColumn, int noOfSquares) {
-        if (gamePhase.equals("SETUP_PHASE")) {
+    private void placeShipOnMyBoard(int startRow, int startColumn, int noOfSquares, ShipPlacementOrientation orientation) {
 
-            System.out.println("MARKERA SKEPP I SETUPPHASE!");
-            //just nu är det första och enda skeppet som ska placeras 3 rutor stort.
-            // Om detta ska funka generellt måste kontroller ske på andra ställen
 
-            gameWindow.placeShipOnMyBoard(startRow, startColumn, noOfSquares, false);
-        } else if (gamePhase.equals("GAME_PHASE")) {
+        System.out.println("MARKERA SKEPP I SETUPPHASE!");
+        //just nu är det första och enda skeppet som ska placeras 3 rutor stort.
+        // Om detta ska funka generellt måste kontroller ske på andra ställen
 
-            gameWindow.placeShipOnMyBoard(startRow, startColumn, 1, true);
-        }
+        gameWindow.placeShipOnBoard(startRow, startColumn, noOfSquares, orientation);
+
 
     }
 

@@ -18,8 +18,10 @@ public class ClientSender {
         }
     }
 
-    void sendClick(int id, int row, int column){
-        out.println(id + " " + row + " " + column);
+
+
+    void sendClick(int id, int row, int column, boolean horizontal){
+        out.println(id + " " + row + " " + column+" "+(horizontal ? "h" : "v"));
     }
 
 

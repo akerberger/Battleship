@@ -1,4 +1,4 @@
-package gui;
+package gui.gamewindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +18,7 @@ public class SidePanel extends JPanel {
     private class NorthPanel extends JPanel{
         JLabel northLabel = new JLabel("Waiting...");
 
+
         public NorthPanel(){
             add(northLabel);
         }
@@ -31,15 +32,17 @@ public class SidePanel extends JPanel {
 
         JTextArea gameInstructionText = new JTextArea("");
         JTextArea shipDescriptionText = new JTextArea("*Ship description*");
+        JLabel shipDirectionText = new JLabel("Ship direction: Horizontal");
 
 
         public SouthPanel(){
-            setLayout(new GridLayout(2,1));
+            setLayout(new GridLayout(3,1, 0, 20));
             gameInstructionText.setEditable(false);
             shipDescriptionText.setEditable(false);
             add(gameInstructionText);
 //            add(Box.createRigidArea(new Dimension(1,5)));
             add(shipDescriptionText);
+            add(shipDirectionText);
         }
         void setLabelText(String text){
             shipDescriptionText.setText(text);
@@ -47,15 +50,17 @@ public class SidePanel extends JPanel {
         void setGameInstructionText(String text){
             gameInstructionText.setText(text);
         }
-
+        void setShipDirectionText(String text){shipDirectionText.setText(text);}
         void setShipDescriptionText(String text){
             shipDescriptionText.setText(text);
         }
     }
 
+
+
     public void setupPhase(){
         northPanel.setLabelText("SETUP PHASE!");
-        southPanel.setShipDescriptionText("Ship: Cruiser - \n3 squares horizontally");
+        southPanel.setShipDescriptionText("Ship: Cruiser - \n3 squares");
         southPanel.setGameInstructionText("<- Klick on the square \nof your board where \nyour ship should be placed");
     }
 
@@ -65,6 +70,11 @@ public class SidePanel extends JPanel {
         southPanel.setGameInstructionText("Klick on a square \nof opponents board where \nyou want to shoot");
     }
 
+
+    public void setShipDirectionLabelText(String text){
+        southPanel.setShipDirectionText(text);
+
+    }
 
     public void setLabelText(String text) {
         northPanel.setLabelText(text);

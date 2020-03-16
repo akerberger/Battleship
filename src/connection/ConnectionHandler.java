@@ -1,7 +1,7 @@
 package connection;
 
 import client.BattleshipClient;
-import gui.GameWindow;
+import gui.gamewindow.GameWindow;
 import server.BattleshipServer;
 
 public class ConnectionHandler {

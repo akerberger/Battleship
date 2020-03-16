@@ -1,8 +1,9 @@
-package gui;
+package gui.gamewindow;
 
+import gamecomponents.ShipPlacementOrientation;
 import server.GameController;
 
-import game.Square;
+import gamecomponents.Square;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,8 @@ public class PlayingBoard extends JPanel {
     private Square[][] squares = new Square[GameController.BOARD_DIMENSION][GameController.BOARD_DIMENSION];
 
 //    private Square [] squares = new Square [GameController.BOARD_DIMENSION^2];
+
+
 
     public PlayingBoard(GameWindow gameWindow, String whos) {
         this.gameWindow = gameWindow;
@@ -47,6 +50,8 @@ public class PlayingBoard extends JPanel {
 
     }
 
+
+
     public String whos() {
         return whos;
     }
@@ -55,24 +60,35 @@ public class PlayingBoard extends JPanel {
         gameWindow.sendClick(row, column, whos);
     }
 
+    public void markSunkenShipSquare(int row, int column){
+        squares[row-1][column-1].markSunkenShip();
+    }
+
     public void markShot(int row, int column, boolean isHit){
         squares[row-1][column-1].markShot(isHit);
     }
 
 
-    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, boolean horizontal) {
+    public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, ShipPlacementOrientation orientation) {
         //just nu ska, i SETUP_PHASE, en båt som är tre rutor lång markeras horisontellt
         System.out.println("SKA MARKERA SKEPP PÅ RUTA: " + startRow + " " + startColumn + " " + shipSize + " rutor stort");
 
-        if(horizontal){
+        if(orientation == ShipPlacementOrientation.HORIZONTAL){
             for(int i = startColumn-1; i < startColumn-1+shipSize; i++){
-                squares[startRow-1][i].mark();
+                squares[startRow-1][i].markPartOfShip();
             }
+        }else{
+            for(int i = startRow-1; i < startRow-1+shipSize; i++){
+                squares[i][startColumn-1].markPartOfShip();
+            }
+
         }
 
     }
 
-    public void addMouseListeners() {
+
+
+    public void addSquareListeners() {
         for (int row = 1; row <= GameController.BOARD_DIMENSION; row++) {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].addMouseListener();
@@ -81,7 +97,7 @@ public class PlayingBoard extends JPanel {
         }
     }
 
-    public void removeMouseListeners() {
+    public void removeSquareListeners() {
         for (int row = 1; row <= GameController.BOARD_DIMENSION; row++) {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].removeMouseListener();

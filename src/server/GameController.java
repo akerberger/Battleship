@@ -1,11 +1,11 @@
 package server;
 
 import client.BattleshipClient;
-import game.Square;
-import gui.GameWindow;
+import gamecomponents.ShipPlacementOrientation;
+import gamecomponents.Square;
+import gui.gamewindow.GameWindow;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GameController {
 
@@ -14,8 +14,13 @@ public class GameController {
 
     public static final int BOARD_DIMENSION = 10;
 
-    private final Square[][] localClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
-    private final Square[][] remoteClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
+//    private final Square[][] localClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
+//    private final Square[][] remoteClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
+
+    //id, List of ships represented as Square arrays
+    private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
+
+    private List<int[]> score = new ArrayList<>();
 
     List<BattleshipClient> connectedPlayers = new ArrayList<>();
 
@@ -28,23 +33,26 @@ public class GameController {
         this.SERVER = server;
     }
 
-
     public GameState getGameState() {
         return gameState;
     }
 
     public void twoConnectedPlayers() {
 
-        //onödig kontroll??
-        if (gameState == GameState.CONNECTION_PHASE) {
-
-            SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
-            gameState = GameState.SETUP_PHASE;
-
+        if (gameState != GameState.CONNECTION_PHASE) {
+            throw new IllegalStateException("Game should be in GameState.CONNECTION_PHASE");
         }
+
+        SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
+        gameState = GameState.SETUP_PHASE;
     }
 
-    private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn) {
+    public void connectedPlayer(Integer clientId) {
+        score.add(new int[]{clientId, 0});
+        playerShips.put(clientId, new ArrayList<>());
+    }
+
+    private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
 
         if (clickedColumn == -1 || clickedRow == -1) {
             throw new IllegalArgumentException();
@@ -54,7 +62,29 @@ public class GameController {
         if (clickedColumn <= BOARD_DIMENSION - 2) {
             //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
             int shipSize = 3;
-            SERVER.sendMessageToClient(clientId, gameState + " " + "placeShip" + " " + clickedRow + " " + clickedColumn + " " + shipSize);
+
+            if (!playerShips.containsKey(clientId)) {
+                throw new IllegalStateException("Client with id " + clientId + " should have mapping");
+            }
+
+            List<Square[]> shipsOfPlayer = playerShips.get(clientId);
+
+            Square[] ship = new Square[shipSize];
+            shipsOfPlayer.add(ship);
+
+            for (int i = 0; i < shipSize; i++) {
+                if (orientation == ShipPlacementOrientation.HORIZONTAL) {
+                    ship[i] = new Square(clickedRow, clickedColumn + i, null);
+                } else {
+                    ship[i] = new Square(clickedRow + i, clickedColumn, null);
+                }
+            }
+
+            System.out.println("GAMECONTROLLER ADDERAT SKEPP: " + Arrays.toString(ship));
+
+            SERVER.sendMessageToClient(clientId, gameState + " " + "placeShip" +
+                    " " + clickedRow + " " + clickedColumn + " " + shipSize + " " +
+                    (orientation == ShipPlacementOrientation.HORIZONTAL ? "h" : "v"));
 
             if (readyPlayerId == -1) {
                 readyPlayerId = clientId;
@@ -65,9 +95,20 @@ public class GameController {
                 gameState = GameState.GAME_PHASE;
             }
 
+
+            System.out.print("SÅHÄR SER MAPEN UT I SETUP PHASE: ");
+            for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+                for (Square[] s : entry.getValue()) {
+                    System.out.print("ID: " + entry.getKey() + " " + Arrays.toString(s) + " ");
+                }
+            }
+
+
         } else {
             //om inte giltigt drag -> lägg till muslyssnare
             SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
+
+
         }
     }
 
@@ -80,22 +121,165 @@ public class GameController {
         int clickedColumn = Integer.parseInt(tokens[2]);
 
         if (gameState == GameState.SETUP_PHASE) {
-            handleClickInSetupPhase(clientId, clickedRow, clickedColumn);
-        } else if (gameState == GameState.GAME_PHASE) {
-            validateMove(clientId, clickedRow, clickedColumn);
-        }
+            String shipPlacementOrientation = tokens[3];
 
+            handleClickInSetupPhase(clientId, clickedRow, clickedColumn,
+                    shipPlacementOrientation.equals("h") ?
+                            ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
+        } else if (gameState == GameState.GAME_PHASE) {
+//            validateMove(clientId, clickedRow, clickedColumn);
+            testMethod(clientId, clickedRow, clickedColumn);
+        }
+    }
+
+    private void checkShip() {
 
     }
 
+    private void broadcastSinkShip(Square[] sunkenShip, int clientId, int clickedRow, int clickedColumn) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sunkenShip.length; i++) {
+            Square s = sunkenShip[i];
+            sb.append(s.getRow());
+            sb.append(" ");
+            sb.append(s.getColumn());
+            if (i + 1 < sunkenShip.length) {
+                sb.append(" ");
+            }
+        }
+        SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + sb.toString());
+    }
+
+    private void testMethod(int clientId, int clickedRow, int clickedColumn) {
+
+        boolean hit = false;
+
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+            //if opponents MapEntry
+            if (entry.getKey() != clientId) {
+                System.out.println("GÅR IN HÄR");
+                List<Square[]> opponentShips = entry.getValue();
+                //loops through all the opponents ships that are not sunken
+                for (int i = 0; i < opponentShips.size() && !hit; i++) {
+                    Square[] ship = opponentShips.get(i);
+                    int hitCount = 0;
+                    for (Square square : ship) {
+                        if (square.isShot()) {
+                            hitCount++;
+                        }
+                        if (square.getRow() == clickedRow && square.getColumn() == clickedColumn) {
+                            square.setIsShot();
+                            hit = true;
+                            hitCount++;
+                        }
+                    }
+                    if (hit) {
+                        SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
+
+                    }
+                    if (hitCount == ship.length) {
+                        System.out.println("HURRRAAAASÄNKDEEET");
+                        opponentShips.remove(ship);
+                        broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
+                    }
+                }
+                if (!hit) {
+                    SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
+                }
+
+                //break efter man gått in i första Map.Entry som inte tillhör clienten som har turen nu
+                break;
+            }
+        }
+
+        System.out.println("SKEPP-MAPPEN: ");
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+            System.out.print("ID: " + entry.getKey() + " SHIPS: ");
+            for (Square[] ship : entry.getValue()) {
+                System.out.print(Arrays.toString(ship) + " ");
+            }
+            System.out.println();
+        }
+
+        SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
+    }
+
+
+    //Gör så att ett sjunket skepp inte kollas... ta bort från lista när sjunket!
     public void validateMove(int clientId, int clickedRow, int clickedColumn) {
 
+        System.out.print("SÅHÄR SER MAPEN UT I VALIDATE MOVE: ");
 
-        SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+            for (Square[] s : entry.getValue()) {
+                System.out.print("ID: " + entry.getKey() + " " + Arrays.toString(s) + " ");
+            }
+        }
+
+        List<Square[]> opponentShips;
+
+        boolean hit = false;
+        int sunkenShipSize = -1;
+        Square[] sunkenShip;
+
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+            //if opponents entry
+            if (entry.getKey() != clientId) {
+
+                opponentShips = entry.getValue();
+
+
+                for (Square[] s : opponentShips) {
+                    System.out.print(Arrays.toString(s) + " ");
+                }
+
+                //loop through every ship of the opponent
+                // or until a ship of the opponent is hit by current click
+                for (int i = 0; i < opponentShips.size() && !hit; i++) {
+                    Square[] ship = opponentShips.get(i);
+                    System.out.println("SKEPP KOLLAS: " + Arrays.toString(ship));
+                    int hitCount = 0;
+                    for (Square shipSquare : ship) {
+                        if (shipSquare.getRow() == clickedRow && shipSquare.getColumn() == clickedColumn) {
+                            shipSquare.setIsShot();
+                            hit = true;
+                        }
+                        if (shipSquare.isShot()) {
+                            hitCount++;
+                        }
+                    }
+                    if (hitCount == ship.length) {
+                        sunkenShip = ship;
+                        sunkenShipSize = ship.length;
+                        StringBuilder sb = new StringBuilder();
+                        for (int j = 0; j < sunkenShipSize; j++) {
+                            Square s = sunkenShip[j];
+                            sb.append(s.getRow());
+                            sb.append(" ");
+                            sb.append(s.getColumn());
+
+                            if (j + 1 < sunkenShipSize) {
+                                sb.append(" ");
+                            }
+                        }
+                        System.out.print("SKA SÄNKA :");
+                        System.out.println(sb.toString());
+                        SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShipSize + " " + sb.toString());
+                    }
+                }
+                break;
+            }
+        }
+        if (hit) {
+            if (sunkenShipSize < 0) {
+                SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
+            }
+
+        } else {
+            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
+        }
+
         SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
-
-        //kontrollera spelets status. om inte game over - byt tur
-
 
 
     }

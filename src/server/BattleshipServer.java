@@ -40,12 +40,12 @@ public class BattleshipServer extends Thread {
         BufferedReader in;
         PrintWriter out;
         int threadID;
-        boolean isHostingClient;
 
-        public ClientHandlerThread(Socket connection, int threadID, boolean isHostingClient) {
+
+        public ClientHandlerThread(Socket connection, int threadID) {
             this.connection = connection;
             this.threadID = threadID;
-            this.isHostingClient=isHostingClient;
+
         }
 
         @Override
@@ -149,7 +149,8 @@ public class BattleshipServer extends Thread {
 //            GUI = new ServerGUI(InetAddress.getLocalHost().getHostName(), port);
 
             //sen går den över till klienttrådarna och väntar
-            boolean isHostingClient = true;
+
+            int clientThreadId = 1;
 
             while (CLIENT_THREADS.size() < 2) {
                 try {
@@ -158,14 +159,15 @@ public class BattleshipServer extends Thread {
 
                     Socket clientConnection = serverSocket.accept();
 
-                    ClientHandlerThread clientThread = new ClientHandlerThread(clientConnection, CLIENT_THREADS.size() + 1, isHostingClient);
-                    isHostingClient = false;
+                    ClientHandlerThread clientThread = new ClientHandlerThread(clientConnection, clientThreadId);
+
                     CLIENT_THREADS.add(clientThread);
                     clientThread.start();
 //                    GUI.onNewClientConnected(CLIENT_THREADS.size(), clientConnection.getInetAddress().getHostName());
-
+                    gameController.connectedPlayer(clientThreadId);
                     System.out.println("KLIENT TILLKOPPLAD, ID: "+clientThread.threadID);
                     isAvalible = false;
+                    clientThreadId++;
 
                 } catch (IOException ioe) {
                     System.err.println("Couldn't initialize new ClientHandlerThread: " + ioe);
@@ -218,7 +220,6 @@ public class BattleshipServer extends Thread {
     public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg){
         for(ClientHandlerThread clientThread : CLIENT_THREADS){
             if (clientThread.threadID != clientIdOfPreviousTurn){
-
                 clientThread.outputMessage(msg);
                 break;
             }
