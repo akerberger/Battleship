@@ -12,62 +12,47 @@ public class PlayingBoard extends JPanel {
 
     private GameWindow gameWindow;
 
-    private String whos;
+    private final boolean isMyBoard;
 
     private Square[][] squares = new Square[GameController.BOARD_DIMENSION][GameController.BOARD_DIMENSION];
 
-//    private Square [] squares = new Square [GameController.BOARD_DIMENSION^2];
 
-
-
-    public PlayingBoard(GameWindow gameWindow, String whos) {
+    public PlayingBoard(GameWindow gameWindow, boolean isMyBoard) {
         this.gameWindow = gameWindow;
-        this.whos = whos;
+        this.isMyBoard=isMyBoard;
 
-        setLayout(new GridLayout(10, 10));
+        setLayout(new BorderLayout());
+        JLabel label = new JLabel( (isMyBoard ? "My ships" : "Opponents ships"));
+        add(label, BorderLayout.NORTH);
 
-//        Border raisedBevele = BorderFactory.createRaisedBevelBorder();
-//        JPanel square;
-//        for(int i = 0; i<100; i++) {
-//            square = new JPanel();
-//            square.setPreferredSize(new Dimension(30,30));
-//            add(square);
-//            square.setBorder(raisedBevele);
-//        }
-
-
+        JPanel board = new JPanel();
+        add(board, BorderLayout.SOUTH);
+        board.setLayout(new GridLayout(10, 10));
         Square square;
+
         for (int row = 0; row < GameController.BOARD_DIMENSION; row++) {
             for (int column = 0; column < GameController.BOARD_DIMENSION; column++) {
-
                 //Numrera 1-10
                 square = new Square(row+1, column+1, this);
-                add(square);
+                board.add(square);
                 squares[row][column] = square;
             }
         }
 
-
     }
 
 
-
-    public String whos() {
-        return whos;
-    }
-
-    public void sendClick(int row, int column, String whos) {
-        gameWindow.sendClick(row, column, whos);
+    public void sendClick(int row, int column) {
+        gameWindow.sendClick(row, column);
     }
 
     public void markSunkenShipSquare(int row, int column){
         squares[row-1][column-1].markSunkenShip();
     }
 
-    public void markShot(int row, int column, boolean isHit){
-        squares[row-1][column-1].markShot(isHit);
+    public void markShot(int row, int column, boolean isHit, ImageIcon icon){
+        squares[row-1][column-1].markShot(isHit, icon);
     }
-
 
     public void placeShipOnMyBoard(int startRow, int startColumn, int shipSize, ShipPlacementOrientation orientation) {
         //just nu ska, i SETUP_PHASE, en båt som är tre rutor lång markeras horisontellt
@@ -81,9 +66,11 @@ public class PlayingBoard extends JPanel {
             for(int i = startRow-1; i < startRow-1+shipSize; i++){
                 squares[i][startColumn-1].markPartOfShip();
             }
-
         }
+    }
 
+    public boolean isMyBoard(){
+        return isMyBoard;
     }
 
 
@@ -93,17 +80,15 @@ public class PlayingBoard extends JPanel {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].addMouseListener();
             }
-
         }
     }
 
     public void removeSquareListeners() {
+
         for (int row = 1; row <= GameController.BOARD_DIMENSION; row++) {
             for (int column = 1; column <= GameController.BOARD_DIMENSION; column++) {
                 squares[row-1][column-1].removeMouseListener();
-
             }
-
         }
     }
 }

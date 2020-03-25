@@ -21,8 +21,8 @@ public class GameWindow extends JFrame {
 
     private final SidePanel SIDE_PANEL = new SidePanel();
 
-    private final PlayingBoard own = new PlayingBoard(this, "down");
-    private final PlayingBoard opponents = new PlayingBoard(this, "up");
+    private final PlayingBoard own = new PlayingBoard(this, true);
+    private final PlayingBoard opponents = new PlayingBoard(this, false);
 
     //    public GameWindow(BattleshipServer server) {
     public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
@@ -46,23 +46,18 @@ public class GameWindow extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 //
-        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
-        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
+//        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
+//        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
 
-        panel.add(own, BorderLayout.SOUTH);
         panel.add(opponents, BorderLayout.NORTH);
+        panel.add(own, BorderLayout.SOUTH);
 
         add(panel, BorderLayout.WEST);
         add(SIDE_PANEL, BorderLayout.EAST);
     }
 
-    public void sendClick(int row, int column, String whos) {
-
-//server.sendClick(x,y, whos);
+    public void sendClick(int row, int column) {
         client.sendClick(row, column);
-
-//		int row = getColumnFromYCoordinate(x);
-//		SIDE_PANEL.setLabelText( x + " " + y +" "+"from: "+(whos.equals("mine") ? "mine":"opponents"));
     }
 
 
@@ -85,12 +80,24 @@ public class GameWindow extends JFrame {
         }
     }
 
-    public void markShot(int row, int column, boolean onOpponentsBoard, boolean isHit) {
 
-        if (onOpponentsBoard) {
-            opponents.markShot(row, column, isHit);
+    public void markShot(int row, int column, boolean isMyClick, boolean isHit) {
+
+        if (isMyClick) {
+            if(isHit){
+                opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redcross.png"));
+            }else{
+                opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluecross.png"));
+            }
+
         } else {
-            own.markShot(row, column, isHit);
+            if(isHit){
+                own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redbackground.png"));
+            }else{
+
+                own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluebackground.png"));
+            }
+
         }
     }
 

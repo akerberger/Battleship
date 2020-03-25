@@ -9,13 +9,9 @@ import java.util.*;
 
 public class GameController {
 
-    //borde vara privat och att avläsning sker genom statisk metod.
     private GameState gameState = GameState.CONNECTION_PHASE;
 
     public static final int BOARD_DIMENSION = 10;
-
-//    private final Square[][] localClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
-//    private final Square[][] remoteClientBoard = new Square[BOARD_DIMENSION][BOARD_DIMENSION];
 
     //id, List of ships represented as Square arrays
     private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
@@ -24,7 +20,7 @@ public class GameController {
 
     List<BattleshipClient> connectedPlayers = new ArrayList<>();
 
-    //Id of player that has set up his/her ships. -1 if no player are ready
+    //Id of player that set up his/her ships first. -1 if no player are ready
     private int readyPlayerId = -1;
 
     private final BattleshipServer SERVER;
@@ -33,9 +29,6 @@ public class GameController {
         this.SERVER = server;
     }
 
-    public GameState getGameState() {
-        return gameState;
-    }
 
     public void twoConnectedPlayers() {
 
@@ -43,8 +36,9 @@ public class GameController {
             throw new IllegalStateException("Game should be in GameState.CONNECTION_PHASE");
         }
 
-        SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
         gameState = GameState.SETUP_PHASE;
+        SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
+
     }
 
     public void connectedPlayer(Integer clientId) {

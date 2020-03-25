@@ -1,5 +1,6 @@
 package gamecomponents;
 
+import gamecomponents.markers.Marker;
 import gui.gamewindow.PlayingBoard;
 
 import javax.swing.*;
@@ -14,7 +15,10 @@ public class Square extends JPanel {
     private final int column;
     private final PlayingBoard board;
     private boolean isShot = false;
+    private boolean isShotShip = false;
     private boolean hasSunkenShip = false;
+
+    private ImageIcon icon = null;
 
     private SquareListener listener = new SquareListener();
 
@@ -22,9 +26,11 @@ public class Square extends JPanel {
         this.row = row;
         this.column = column;
         this.board = board;
+
         Border raisedBevele = BorderFactory.createRaisedBevelBorder();
         setBorder(raisedBevele);
         setPreferredSize(new Dimension(30, 30));
+
     }
 
     private class SquareListener extends MouseAdapter {
@@ -35,18 +41,32 @@ public class Square extends JPanel {
         public void mouseClicked(MouseEvent e) {
             if(!isShot){
                 board.removeSquareListeners();
-                board.sendClick(row, column, "whos");
+                board.sendClick(row, column);
             }
         }
     }
 
-    public void markShot(boolean hit) {
+    public void markShot(boolean hit, ImageIcon icon) {
         isShot=true;
-        if (hit) {
-            setBackground(Color.RED);
-        }else{
-            setBackground(Color.BLUE);
-        }
+        isShotShip = hit;
+
+        this.icon=icon;
+
+//        if(board.isMyBoard()){
+//            if (hit) {
+//                setBackground(Color.RED);
+//            }else{
+//                setBackground(Color.BLUE);
+//            }
+//        }else{
+//            if (hit) {
+//                setBackground(Color.RED);
+//            }else{
+//                setBackground(Color.BLUE);
+//            }
+//        }
+
+    repaint();
     }
 
 
@@ -96,15 +116,46 @@ public class Square extends JPanel {
     public void paintComponent(Graphics g){
         super.paintComponent(g);
 
+//        if(hasSunkenShip){
+//            ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/skull.png");
+//            g.drawImage(skull.getImage(), 6,6,20,20,this);
+//        }
 
         if(hasSunkenShip){
-            ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/skull.png");
+            setBackground(Color.RED);
+            ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/skull.png");
             g.drawImage(skull.getImage(), 6,6,20,20,this);
+        }
+
+        else if(isShot){
+//            ImageIcon shot;
+//
+//            if(board.isMyBoard()){
+//                if(isShotShip){
+//                    shot = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluebackground.png");
+//                }
+//                else{
+//                    shot = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluebackground.png");
+//                }
+//
+//
+//            }else{
+//                if(isShotShip){
+//                    shot = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redcross.png");
+//                }else{
+//                    shot = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluecross.png");
+//
+//                }
+//
+//            }
+            g.drawImage(icon.getImage(), 5,5,20,20,this);
         }
 
 
     }
 
+
+    //utöka denna definition. Samt överskugga hashcode!
     @Override
     public boolean equals(Object other){
 
@@ -115,6 +166,8 @@ public class Square extends JPanel {
 
         return false;
     }
+
+
 
     @Override
     public String toString(){

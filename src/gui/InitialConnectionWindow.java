@@ -26,6 +26,13 @@ public class InitialConnectionWindow extends JFrame {
 
        JPanel buttonPanel = new JPanel();
 
+       addConnectionButtons(buttonPanel, connectionHandler);
+
+        return buttonPanel;
+    }
+
+    private void addConnectionButtons(JPanel buttonPanel, ConnectionHandler connectionHandler){
+
         JButton connectToRemoteServerBtn = new JButton("Join local game");
         buttonPanel.add(connectToRemoteServerBtn);
 
@@ -41,7 +48,6 @@ public class InitialConnectionWindow extends JFrame {
             setVisible(false);
         });
 
-        return buttonPanel;
     }
 
 

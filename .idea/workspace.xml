@@ -7,12 +7,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e83c25cf-b6a0-43fa-9d1f-5d0e73c4a509" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/gamecomponents/markers/Marker.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/artifacts/Battleship_jar/Battleship.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/Battleship_jar/Battleship.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/BattleshipClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/BattleshipClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gamecomponents/Square.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gamecomponents/Square.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/InitialConnectionWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/InitialConnectionWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/GameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/GameController.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -27,11 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
+            <state relative-caret-position="518">
+              <caret line="108" column="9" lean-forward="true" selection-start-line="108" selection-start-column="9" selection-end-line="108" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -39,11 +40,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/server/GameController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="128">
-              <caret line="152" column="17" selection-start-line="152" selection-start-column="17" selection-end-line="152" selection-end-column="17" />
+            <state relative-caret-position="229">
+              <caret line="38" column="42" selection-start-line="38" selection-start-column="42" selection-end-line="38" selection-end-column="42" />
               <folding>
                 <element signature="method#handleClickInSetupPhase#0;class#GameController#0" />
                 <element signature="method#validateMove#0;class#GameController#0" />
@@ -54,33 +55,14 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/BattleshipClient.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="149" column="51" selection-start-line="149" selection-start-column="51" selection-end-line="149" selection-end-column="51" />
-              <folding>
-                <element signature="e#4816#4817#0" expanded="true" />
-                <element signature="e#4841#4842#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/server/BattleshipServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
+            <state relative-caret-position="548">
               <caret line="221" column="65" selection-start-line="221" selection-start-column="65" selection-end-line="221" selection-end-column="65" />
               <folding>
                 <element signature="e#657#719#0" />
                 <element signature="method#BattleshipServer#0;class#BattleshipServer#0" />
-                <element signature="e#2236#2499#0" />
-                <element signature="e#2288#2377#0" />
-                <element signature="e#2648#2692#0" />
                 <element signature="method#removeKilledThreadFromList#0;class#BattleshipServer#0" />
-                <element signature="e#3691#3803#1" />
-                <element signature="e#3743#3793#1" />
-                <element signature="e#3835#3891#1" />
                 <element signature="n#!!doc;n#sendMessageToClient#0;n#BattleshipServer#0" />
                 <element signature="method#sendMessageToClient#0;class#BattleshipServer#0" />
                 <element signature="method#getHostAddress#0;class#BattleshipServer#0" />
@@ -90,10 +72,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/ClientSender.java">
+        <entry file="file://$PROJECT_DIR$/src/main/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="26" selection-start-line="26" selection-end-line="26" />
+            <state relative-caret-position="105">
+              <caret line="8" column="61" selection-start-line="8" selection-start-column="61" selection-end-line="8" selection-end-column="61" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -102,10 +84,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/ClientReceiver.java">
+        <entry file="file://$PROJECT_DIR$/src/gui/InitialConnectionWindow.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="30" selection-start-line="30" selection-end-line="30" />
+            <state relative-caret-position="394">
+              <caret line="28" column="10" selection-start-line="28" selection-start-column="10" selection-end-line="28" selection-end-column="10" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -116,12 +98,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="63" column="38" selection-start-line="63" selection-start-column="38" selection-end-line="63" selection-end-column="38" />
-              <folding>
-                <element signature="e#1702#1703#0" expanded="true" />
-                <element signature="e#1759#1760#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="370">
+              <caret line="54" column="5" lean-forward="true" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -129,34 +107,37 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gamecomponents/Square.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="666">
-              <caret line="98" selection-start-line="98" selection-end-line="98" />
+            <state relative-caret-position="363">
+              <caret line="140" column="2" lean-forward="true" selection-start-line="140" selection-start-column="2" selection-end-line="140" selection-end-column="2" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1793#1794#0" expanded="true" />
-                <element signature="e#1822#1823#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gamecomponents/markers/Marker.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="15" column="43" selection-start-line="15" selection-start-column="43" selection-end-line="15" selection-end-column="43" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/resources/skull.png">
+          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/SidePanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-169">
+            <state relative-caret-position="435">
               <caret line="34" column="61" selection-start-line="34" selection-start-column="61" selection-end-line="34" selection-end-column="61" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/connection/ConnectionHandler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="44" column="76" selection-start-line="44" selection-start-column="76" selection-end-line="44" selection-end-column="76" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -169,8 +150,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -201,14 +182,15 @@
         <option value="$PROJECT_DIR$/src/client/ClientSender.java" />
         <option value="$PROJECT_DIR$/src/game/ShipPlacementOrientation.java" />
         <option value="$PROJECT_DIR$/src/gui/gamewindow/SidePanel.java" />
-        <option value="$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java" />
         <option value="$PROJECT_DIR$/src/game/Square.java" />
-        <option value="$PROJECT_DIR$/src/gui/InitialConnectionWindow.java" />
         <option value="$PROJECT_DIR$/src/server/BattleshipServer.java" />
-        <option value="$PROJECT_DIR$/src/gamecomponents/Square.java" />
-        <option value="$PROJECT_DIR$/src/server/GameController.java" />
         <option value="$PROJECT_DIR$/src/client/BattleshipClient.java" />
+        <option value="$PROJECT_DIR$/src/gamecomponents/markers/Marker.java" />
+        <option value="$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java" />
+        <option value="$PROJECT_DIR$/src/gamecomponents/Square.java" />
         <option value="$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java" />
+        <option value="$PROJECT_DIR$/src/gui/InitialConnectionWindow.java" />
+        <option value="$PROJECT_DIR$/src/server/GameController.java" />
       </list>
     </option>
   </component>
@@ -216,60 +198,14 @@
     <option name="x" value="9" />
     <option name="y" value="23" />
     <option name="width" value="1268" />
-    <option name="height" value="660" />
+    <option name="height" value="717" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
-    <navigator currentView="PackagesPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="connection" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="game" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="gui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="server" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
       <pane id="Scope" />
       <pane id="PackagesPane">
         <subPane>
@@ -277,11 +213,6 @@
             <path>
               <item name="Battleships" type="58d84e3e:PackageViewProjectNode" />
               <item name="Battleship" type="616d4139:PackageViewModuleNode" />
-            </path>
-            <path>
-              <item name="Battleships" type="58d84e3e:PackageViewProjectNode" />
-              <item name="Battleship" type="616d4139:PackageViewModuleNode" />
-              <item name="client" type="1f31426a:PackageElementNode" />
             </path>
             <path>
               <item name="Battleships" type="58d84e3e:PackageViewProjectNode" />
@@ -313,6 +244,72 @@
           <select />
         </subPane>
       </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="connection" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="gamecomponents" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="gamecomponents" type="462c0819:PsiDirectoryNode" />
+              <item name="markers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="gui" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="gui" type="462c0819:PsiDirectoryNode" />
+              <item name="gamewindow" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Battleships" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Battleships" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -330,6 +327,11 @@
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="gui.gamewindow" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/resources" />
+      <recent name="$PROJECT_DIR$/src/gamecomponents" />
+      <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -395,7 +397,10 @@
       <workItem from="1584181862402" duration="11791000" />
       <workItem from="1584208059193" duration="1085000" />
       <workItem from="1584263966495" duration="8026000" />
-      <workItem from="1584279733302" duration="12083000" />
+      <workItem from="1584279733302" duration="19574000" />
+      <workItem from="1584699840606" duration="1644000" />
+      <workItem from="1584958698708" duration="42000" />
+      <workItem from="1585162272925" duration="2343000" />
     </task>
     <task id="LOCAL-00001" summary="Funkar att markera skepp">
       <created>1583836017518</created>
@@ -474,11 +479,18 @@
       <option name="project" value="LOCAL" />
       <updated>1584353898582</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Commit innan layout-ändringar i GameWindow">
+      <created>1584357995026</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1584357995026</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="128507000" />
+    <option name="totallyTimeSpent" value="140027000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -490,9 +502,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="9" y="23" width="1268" height="660" extended-state="0" />
+    <frame x="9" y="23" width="1268" height="717" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2137031" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22349103" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -500,21 +513,21 @@
       <window_info id="UI Designer" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info id="Learn" order="7" />
-      <window_info anchor="bottom" id="Inspection Results" weight="0.28697184" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3274648" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.31839257" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.19542253" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.1885626" />
-      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.24119718" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.24119718" />
       <window_info anchor="bottom" id="Docker" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.32921174" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.3274648" />
       <window_info anchor="bottom" id="JProfiler" order="11" />
       <window_info anchor="bottom" id="Database Changes" order="12" />
       <window_info anchor="bottom" id="Version Control" order="13" weight="0.2194745" />
+      <window_info anchor="bottom" id="Inspection Results" order="14" weight="0.28697184" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -581,7 +594,8 @@
     <MESSAGE value="Lyft ut ClientSender till separat fil från BattleshipClient" />
     <MESSAGE value="Funkar att placera ut varsitt skepp, ta turer, markera träffar/missar, samt sänka skeppen" />
     <MESSAGE value="Bild kommer upp på sänkt skepps rutor" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bild kommer upp på sänkt skepps rutor" />
+    <MESSAGE value="Commit innan layout-ändringar i GameWindow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit innan layout-ändringar i GameWindow" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -596,16 +610,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="8" column="61" selection-start-line="8" selection-start-column="61" selection-end-line="8" selection-end-column="61" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/out/production/Battleship/connection/BattleshipServer$ClientHandlerThread.class" />
     <entry file="file://$PROJECT_DIR$/src/game/GameState.java" />
     <entry file="file://$PROJECT_DIR$/src/game/MessageType.java" />
@@ -613,26 +617,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
           <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gui/InitialConnectionWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="32" column="58" lean-forward="true" selection-start-line="32" selection-start-column="58" selection-end-line="32" selection-end-column="58" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/SidePanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-169">
-          <caret line="34" column="61" selection-start-line="34" selection-start-column="61" selection-end-line="34" selection-end-column="61" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -656,31 +640,81 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/BattleshipClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1500">
+          <caret line="107" column="30" selection-start-line="107" selection-start-column="30" selection-end-line="107" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/ClientReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="30" selection-start-line="30" selection-end-line="30" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gamecomponents/markers/Marker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="15" column="43" selection-start-line="15" selection-start-column="43" selection-end-line="15" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/resources/skull.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/SidePanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="34" column="61" selection-start-line="34" selection-start-column="61" selection-end-line="34" selection-end-column="61" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/PlayingBoard.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="63" column="38" selection-start-line="63" selection-start-column="38" selection-end-line="63" selection-end-column="38" />
+        <state relative-caret-position="370">
+          <caret line="54" column="5" lean-forward="true" selection-start-line="54" selection-start-column="5" selection-end-line="54" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gamecomponents/Square.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="363">
+          <caret line="140" column="2" lean-forward="true" selection-start-line="140" selection-start-column="2" selection-end-line="140" selection-end-column="2" />
           <folding>
-            <element signature="e#1702#1703#0" expanded="true" />
-            <element signature="e#1759#1760#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="518">
+          <caret line="108" column="9" lean-forward="true" selection-start-line="108" selection-start-column="9" selection-end-line="108" selection-end-column="9" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/server/BattleshipServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
+        <state relative-caret-position="548">
           <caret line="221" column="65" selection-start-line="221" selection-start-column="65" selection-end-line="221" selection-end-column="65" />
           <folding>
             <element signature="e#657#719#0" />
             <element signature="method#BattleshipServer#0;class#BattleshipServer#0" />
-            <element signature="e#2236#2499#0" />
-            <element signature="e#2288#2377#0" />
-            <element signature="e#2648#2692#0" />
             <element signature="method#removeKilledThreadFromList#0;class#BattleshipServer#0" />
-            <element signature="e#3691#3803#1" />
-            <element signature="e#3743#3793#1" />
-            <element signature="e#3835#3891#1" />
             <element signature="n#!!doc;n#sendMessageToClient#0;n#BattleshipServer#0" />
             <element signature="method#sendMessageToClient#0;class#BattleshipServer#0" />
             <element signature="method#getHostAddress#0;class#BattleshipServer#0" />
@@ -688,22 +722,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gamecomponents/Square.java">
+    <entry file="file://$PROJECT_DIR$/src/main/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="98" selection-start-line="98" selection-end-line="98" />
+        <state relative-caret-position="105">
+          <caret line="8" column="61" selection-start-line="8" selection-start-column="61" selection-end-line="8" selection-end-column="61" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1793#1794#0" expanded="true" />
-            <element signature="e#1822#1823#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/ClientReceiver.java">
+    <entry file="file://$PROJECT_DIR$/src/gui/InitialConnectionWindow.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="30" selection-start-line="30" selection-end-line="30" />
+        <state relative-caret-position="394">
+          <caret line="28" column="10" selection-start-line="28" selection-start-column="10" selection-end-line="28" selection-end-column="10" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -712,33 +744,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/server/GameController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="128">
-          <caret line="152" column="17" selection-start-line="152" selection-start-column="17" selection-end-line="152" selection-end-column="17" />
+        <state relative-caret-position="229">
+          <caret line="38" column="42" selection-start-line="38" selection-start-column="42" selection-end-line="38" selection-end-column="42" />
           <folding>
             <element signature="method#handleClickInSetupPhase#0;class#GameController#0" />
             <element signature="method#validateMove#0;class#GameController#0" />
             <element signature="method#getSquareNumberFromCoordinate#0;class#GameController#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/BattleshipClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="149" column="51" selection-start-line="149" selection-start-column="51" selection-end-line="149" selection-end-column="51" />
-          <folding>
-            <element signature="e#4816#4817#0" expanded="true" />
-            <element signature="e#4841#4842#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gui/gamewindow/GameWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
