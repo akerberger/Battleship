@@ -13,7 +13,7 @@ public class ClientReceiver extends Thread {
 
     private BattleshipClient client;
 
-    Socket socket;
+    private Socket socket;
 
     ClientReceiver(BattleshipClient client, Socket socket) {
         this.client=client;

@@ -1,6 +1,5 @@
 package server;
 
-import client.BattleshipClient;
 import gamecomponents.ShipPlacementOrientation;
 import gamecomponents.Square;
 import gui.gamewindow.GameWindow;
@@ -13,22 +12,21 @@ public class GameController {
 
     public static final int BOARD_DIMENSION = 10;
 
+    private final int SHIPS_PER_PLAYER = 3;
+
     //id, List of ships represented as Square arrays
     private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
 
     private List<int[]> score = new ArrayList<>();
 
-    List<BattleshipClient> connectedPlayers = new ArrayList<>();
-
     //Id of player that set up his/her ships first. -1 if no player are ready
-    private int readyPlayerId = -1;
+    private int firstReadyPlayer = -1;
 
     private final BattleshipServer SERVER;
 
     public GameController(BattleshipServer server) {
         this.SERVER = server;
     }
-
 
     public void twoConnectedPlayers() {
 
@@ -61,6 +59,10 @@ public class GameController {
                 throw new IllegalStateException("Client with id " + clientId + " should have mapping");
             }
 
+            //kontrollera om klicket skulle krocka med befintliga skepp.
+
+
+
             List<Square[]> shipsOfPlayer = playerShips.get(clientId);
 
             Square[] ship = new Square[shipSize];
@@ -80,15 +82,21 @@ public class GameController {
                     " " + clickedRow + " " + clickedColumn + " " + shipSize + " " +
                     (orientation == ShipPlacementOrientation.HORIZONTAL ? "h" : "v"));
 
-            if (readyPlayerId == -1) {
-                readyPlayerId = clientId;
-            } else {
-                //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
-
-                SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "gamePhase" + " " + readyPlayerId);
-                gameState = GameState.GAME_PHASE;
+            if (firstReadyPlayer == -1) {
+                firstReadyPlayer = clientId;
             }
 
+            //om spelaren inte har placerat alla sina skepp - ta ny placeringsvända
+
+            if(shipsOfPlayer.size()< SHIPS_PER_PLAYER){
+                //notOkMove bara för att spelaren ska få ny placeringsvända i setupphase. Ändra detta!!!
+                SERVER.sendMessageToClient(clientId, gameState+" "+"notOkMove");
+            }else if(allPlayersReady()){
+                //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
+
+                SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "gamePhase" + " " + firstReadyPlayer);
+                gameState = GameState.GAME_PHASE;
+            }
 
             System.out.print("SÅHÄR SER MAPEN UT I SETUP PHASE: ");
             for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
@@ -97,13 +105,20 @@ public class GameController {
                 }
             }
 
-
         } else {
             //om inte giltigt drag -> lägg till muslyssnare
             SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
-
-
         }
+    }
+
+    private boolean allPlayersReady(){
+        for(Map.Entry<Integer, List <Square[]>> entry : playerShips.entrySet() ){
+            //If a player hasn't placed all his/hers ships yet
+            if(entry.getValue().size()<SHIPS_PER_PLAYER){
+                return false;
+            }
+        }
+        return true;
     }
 
     public void handleClientClicked(String msg) {
@@ -116,7 +131,6 @@ public class GameController {
 
         if (gameState == GameState.SETUP_PHASE) {
             String shipPlacementOrientation = tokens[3];
-
             handleClickInSetupPhase(clientId, clickedRow, clickedColumn,
                     shipPlacementOrientation.equals("h") ?
                             ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
