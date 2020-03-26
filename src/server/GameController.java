@@ -14,12 +14,14 @@ public class GameController {
 
     private final int SHIPS_PER_PLAYER = 3;
 
+    private final int SHIP_SIZE = 3;
+
     //id, List of ships represented as Square arrays
     private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
 
     private List<int[]> score = new ArrayList<>();
 
-    //Id of player that set up his/her ships first. -1 if no player are ready
+    //Id of player that set up his/her ships first. -1 when no player have placed a ship
     private int firstReadyPlayer = -1;
 
     private final BattleshipServer SERVER;
@@ -104,6 +106,19 @@ public class GameController {
         return true;
     }
 
+    private void addShipToPlayerShips(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
+        Square[] ship = new Square[shipSize];
+        shipsOfPlayer.add(ship);
+
+        for (int i = 0; i < shipSize; i++) {
+            if (orientation == ShipPlacementOrientation.HORIZONTAL) {
+                ship[i] = new Square(clickedRow, clickedColumn + i, null);
+            } else {
+                ship[i] = new Square(clickedRow + i, clickedColumn, null);
+            }
+        }
+    }
+
     private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
 
         if (clickedColumn == -1 || clickedRow == -1) {
@@ -116,26 +131,14 @@ public class GameController {
 
         List<Square[]> shipsOfPlayer = playerShips.get(clientId);
 
-        int shipSize = 3;
-
-        if (!validShipPlacement(shipsOfPlayer, clickedRow, clickedColumn, shipSize, orientation)) {
+        if (!validShipPlacement(shipsOfPlayer, clickedRow, clickedColumn, SHIP_SIZE, orientation)) {
             SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
         } else {
-            Square[] ship = new Square[shipSize];
-            shipsOfPlayer.add(ship);
 
-            for (int i = 0; i < shipSize; i++) {
-                if (orientation == ShipPlacementOrientation.HORIZONTAL) {
-                    ship[i] = new Square(clickedRow, clickedColumn + i, null);
-                } else {
-                    ship[i] = new Square(clickedRow + i, clickedColumn, null);
-                }
-            }
-
-            System.out.println("GAMECONTROLLER ADDERAT SKEPP: " + Arrays.toString(ship));
+            addShipToPlayerShips(shipsOfPlayer, clickedRow, clickedColumn, SHIP_SIZE, orientation);
 
             SERVER.sendMessageToClient(clientId, gameState + " " + "placeShip" +
-                    " " + clickedRow + " " + clickedColumn + " " + shipSize + " " +
+                    " " + clickedRow + " " + clickedColumn + " " + SHIP_SIZE + " " +
                     (orientation == ShipPlacementOrientation.HORIZONTAL ? "h" : "v"));
 
             if (firstReadyPlayer == -1) {
@@ -199,13 +202,10 @@ public class GameController {
                             ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
         } else if (gameState == GameState.GAME_PHASE) {
 //            validateMove(clientId, clickedRow, clickedColumn);
-            testMethod(clientId, clickedRow, clickedColumn);
+            handleClickInGamePhase(clientId, clickedRow, clickedColumn);
         }
     }
 
-    private void checkShip() {
-
-    }
 
     private void broadcastSinkShip(Square[] sunkenShip, int clientId, int clickedRow, int clickedColumn) {
         StringBuilder sb = new StringBuilder();
@@ -227,7 +227,7 @@ public class GameController {
     }
 
 
-    private void testMethod(int clientId, int clickedRow, int clickedColumn) {
+    private void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
 
         boolean hit = false;
 
@@ -297,120 +297,11 @@ public class GameController {
         SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
     }
 
-
-    //Gör så att ett sjunket skepp inte kollas... ta bort från lista när sjunket!
-    public void validateMove(int clientId, int clickedRow, int clickedColumn) {
-
-        System.out.print("SÅHÄR SER MAPEN UT I VALIDATE MOVE: ");
-
-        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-            for (Square[] s : entry.getValue()) {
-                System.out.print("ID: " + entry.getKey() + " " + Arrays.toString(s) + " ");
-            }
-        }
-
-        List<Square[]> opponentShips;
-
-        boolean hit = false;
-        int sunkenShipSize = -1;
-        Square[] sunkenShip;
-
-        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-            //if opponents entry
-            if (entry.getKey() != clientId) {
-
-                opponentShips = entry.getValue();
-
-
-                for (Square[] s : opponentShips) {
-                    System.out.print(Arrays.toString(s) + " ");
-                }
-
-                //loop through every ship of the opponent
-                // or until a ship of the opponent is hit by current click
-                for (int i = 0; i < opponentShips.size() && !hit; i++) {
-                    Square[] ship = opponentShips.get(i);
-                    System.out.println("SKEPP KOLLAS: " + Arrays.toString(ship));
-                    int hitCount = 0;
-                    for (Square shipSquare : ship) {
-                        if (shipSquare.getRow() == clickedRow && shipSquare.getColumn() == clickedColumn) {
-                            shipSquare.setIsShot();
-                            hit = true;
-                        }
-                        if (shipSquare.isShot()) {
-                            hitCount++;
-                        }
-                    }
-                    if (hitCount == ship.length) {
-                        sunkenShip = ship;
-                        sunkenShipSize = ship.length;
-                        StringBuilder sb = new StringBuilder();
-                        for (int j = 0; j < sunkenShipSize; j++) {
-                            Square s = sunkenShip[j];
-                            sb.append(s.getRow());
-                            sb.append(" ");
-                            sb.append(s.getColumn());
-
-                            if (j + 1 < sunkenShipSize) {
-                                sb.append(" ");
-                            }
-                        }
-                        System.out.print("SKA SÄNKA :");
-                        System.out.println(sb.toString());
-                        SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShipSize + " " + sb.toString());
-                    }
-                }
-                break;
-            }
-        }
-        if (hit) {
-            if (sunkenShipSize < 0) {
-                SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
-            }
-
-        } else {
-            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
-        }
-
-        SERVER.initiateNewTurn(clientId, gameState + " " + "newTurn");
-
-
-    }
-
-    private int getSquareNumberFromCoordinate(int coordinate) {
-
-        if (coordinate > 0 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10) {
-            return 1;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 2) {
-            return 2;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 2 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 3) {
-            return 3;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 3 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 4) {
-            return 4;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 4 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 5) {
-            return 5;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 5 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 6) {
-            return 6;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 6 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 7) {
-            return 7;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 7 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 8) {
-            return 8;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 8 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 9) {
-            return 9;
-        } else if (coordinate > GameWindow.PLAYING_BOARD_SIZE / 10 * 9 && coordinate <= GameWindow.PLAYING_BOARD_SIZE / 10 * 10) {
-            return 10;
-        }
-
-        return -1;
-    }
-
     private enum GameState {
         CONNECTION_PHASE,
         SETUP_PHASE,
         GAME_PHASE,
-        GAME_OVER;
-
-
+        GAME_OVER
     }
 
 }
