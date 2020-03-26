@@ -44,27 +44,83 @@ public class GameController {
         playerShips.put(clientId, new ArrayList<>());
     }
 
+    private boolean collides(Square square, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
+
+        int checkingRow = clickedRow;
+        int checkingColumn = clickedColumn;
+
+        for (int i = 0; i < shipSize; i++) {
+            if (square.getRow() == checkingRow && square.getColumn() == checkingColumn) {
+                return true;
+            }
+            if (orientation == ShipPlacementOrientation.HORIZONTAL) {
+                checkingColumn++;
+            } else {
+                checkingRow++;
+            }
+        }
+
+        return false;
+
+    }
+
+    private boolean shipOutsideOfBoard(int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
+        int checkingRow = clickedRow;
+        int checkingColumn = clickedColumn;
+
+        //kontrollera mot spelbrädets storlek
+        for (int i = 0; i < shipSize; i++) {
+            if (checkingRow > BOARD_DIMENSION || checkingColumn > BOARD_DIMENSION) {
+                return true;
+            }
+            if (orientation == ShipPlacementOrientation.HORIZONTAL) {
+                checkingColumn++;
+            } else {
+                checkingRow++;
+            }
+        }
+        return false;
+    }
+
+    private boolean shipCollision(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
+
+        for (Square[] ship : shipsOfPlayer) {
+            for (Square square : ship) {
+                if (collides(square, clickedRow, clickedColumn, shipSize, orientation)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean validShipPlacement(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
+
+        if (shipOutsideOfBoard(clickedRow, clickedColumn, shipSize, orientation) ||
+                shipCollision(shipsOfPlayer, clickedRow, clickedColumn, shipSize, orientation)) {
+            return false;
+        }
+
+        return true;
+    }
+
     private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
 
         if (clickedColumn == -1 || clickedRow == -1) {
             throw new IllegalArgumentException();
         }
 
-        //giltigt
-        if (clickedColumn <= BOARD_DIMENSION - 2) {
-            //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
-            int shipSize = 3;
+        if (!playerShips.containsKey(clientId)) {
+            throw new IllegalStateException("Client with id " + clientId + " should have mapping");
+        }
 
-            if (!playerShips.containsKey(clientId)) {
-                throw new IllegalStateException("Client with id " + clientId + " should have mapping");
-            }
+        List<Square[]> shipsOfPlayer = playerShips.get(clientId);
 
-            //kontrollera om klicket skulle krocka med befintliga skepp.
+        int shipSize = 3;
 
-
-
-            List<Square[]> shipsOfPlayer = playerShips.get(clientId);
-
+        if (!validShipPlacement(shipsOfPlayer, clickedRow, clickedColumn, shipSize, orientation)) {
+            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
+        } else {
             Square[] ship = new Square[shipSize];
             shipsOfPlayer.add(ship);
 
@@ -88,10 +144,10 @@ public class GameController {
 
             //om spelaren inte har placerat alla sina skepp - ta ny placeringsvända
 
-            if(shipsOfPlayer.size()< SHIPS_PER_PLAYER){
+            if (shipsOfPlayer.size() < SHIPS_PER_PLAYER) {
                 //notOkMove bara för att spelaren ska få ny placeringsvända i setupphase. Ändra detta!!!
-                SERVER.sendMessageToClient(clientId, gameState+" "+"notOkMove");
-            }else if(allPlayersReady()){
+                SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove");
+            } else if (allPlayersReady()) {
                 //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
 
                 SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "gamePhase" + " " + firstReadyPlayer);
@@ -104,17 +160,24 @@ public class GameController {
                     System.out.print("ID: " + entry.getKey() + " " + Arrays.toString(s) + " ");
                 }
             }
-
-        } else {
-            //om inte giltigt drag -> lägg till muslyssnare
-            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
         }
+
+        //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
+
+
+        //kontrollera om klicket skulle krocka med befintliga skepp.
+
+
+//        } else {
+//            //om inte giltigt drag -> lägg till muslyssnare
+//            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
+//        }
     }
 
-    private boolean allPlayersReady(){
-        for(Map.Entry<Integer, List <Square[]>> entry : playerShips.entrySet() ){
+    private boolean allPlayersReady() {
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
             //If a player hasn't placed all his/hers ships yet
-            if(entry.getValue().size()<SHIPS_PER_PLAYER){
+            if (entry.getValue().size() < SHIPS_PER_PLAYER) {
                 return false;
             }
         }
@@ -158,9 +221,9 @@ public class GameController {
         SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + sb.toString());
     }
 
-    private void gameOver(int winnerClientId){
-        gameState=GameState.GAME_OVER;
-        SERVER.broadcastMessage(gameState+ " "+"gameOver"+ " "+winnerClientId);
+    private void gameOver(int winnerClientId) {
+        gameState = GameState.GAME_OVER;
+        SERVER.broadcastMessage(gameState + " " + "gameOver" + " " + winnerClientId);
     }
 
 
@@ -197,7 +260,7 @@ public class GameController {
                         opponentShips.remove(ship);
                         broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
 
-                        if(opponentShips.size()==0){
+                        if (opponentShips.size() == 0) {
                             gameOver = true;
                         }
                     }
@@ -220,9 +283,9 @@ public class GameController {
             System.out.println();
         }
 
-        if(gameOver){
+        if (gameOver) {
             gameOver(clientId);
-        }else{
+        } else {
             initiateNextTurn(clientId);
 
         }
@@ -230,7 +293,7 @@ public class GameController {
 
     }
 
-    private void initiateNextTurn(int playerOfCurrentTurn){
+    private void initiateNextTurn(int playerOfCurrentTurn) {
         SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
     }
 

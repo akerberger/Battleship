@@ -8,9 +8,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e83c25cf-b6a0-43fa-9d1f-5d0e73c4a509" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Battleship/META-INF/Battleship.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Battleship/gui/InitialConnectionWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Battleship/gui/InitialConnectionWindow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/client/ClientReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/client/ClientReceiver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/artifacts/Battleship_jar/Battleship.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/Battleship_jar/Battleship.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/server/GameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/server/GameController.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -28,8 +26,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/server/GameController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="47">
-              <caret line="63" column="12" selection-start-line="63" selection-start-column="12" selection-end-line="63" selection-end-column="12" />
+            <state relative-caret-position="405">
+              <caret line="102" column="8" selection-start-line="102" selection-start-column="8" selection-end-line="102" selection-end-column="8" />
               <folding>
                 <element signature="e#782#783#0" expanded="true" />
                 <element signature="e#818#819#0" expanded="true" />
@@ -397,7 +395,7 @@
       <workItem from="1584958698708" duration="42000" />
       <workItem from="1585162272925" duration="2862000" />
       <workItem from="1585215405087" duration="9000" />
-      <workItem from="1585235528026" duration="2803000" />
+      <workItem from="1585235528026" duration="6590000" />
     </task>
     <task id="LOCAL-00001" summary="Funkar att markera skepp">
       <created>1583836017518</created>
@@ -490,11 +488,18 @@
       <option name="project" value="LOCAL" />
       <updated>1585165335488</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Commit innan refaktorera GameController">
+      <created>1585238470956</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1585238470956</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="143358000" />
+    <option name="totallyTimeSpent" value="147145000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -599,7 +604,8 @@
     <MESSAGE value="Bild kommer upp på sänkt skepps rutor" />
     <MESSAGE value="Commit innan layout-ändringar i GameWindow" />
     <MESSAGE value="Commit innan ändringar i setupphase" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit innan ändringar i setupphase" />
+    <MESSAGE value="Commit innan refaktorera GameController" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commit innan refaktorera GameController" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -691,16 +697,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gamecomponents/Square.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1920">
-          <caret line="140" column="2" selection-start-line="140" selection-start-column="2" selection-end-line="140" selection-end-column="2" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/resources/skull.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
@@ -746,10 +742,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/gamecomponents/Square.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1920">
+          <caret line="140" column="2" selection-start-line="140" selection-start-column="2" selection-end-line="140" selection-end-column="2" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/server/GameController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="47">
-          <caret line="63" column="12" selection-start-line="63" selection-start-column="12" selection-end-line="63" selection-end-column="12" />
+        <state relative-caret-position="405">
+          <caret line="102" column="8" selection-start-line="102" selection-start-column="8" selection-end-line="102" selection-end-column="8" />
           <folding>
             <element signature="e#782#783#0" expanded="true" />
             <element signature="e#818#819#0" expanded="true" />
