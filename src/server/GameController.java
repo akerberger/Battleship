@@ -30,6 +30,7 @@ public class GameController {
         this.SERVER = server;
     }
 
+
     public void twoConnectedPlayers() {
 
         if (gameState != GameState.CONNECTION_PHASE) {
@@ -119,6 +120,8 @@ public class GameController {
         }
     }
 
+
+    //MessageHandler
     private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
 
         if (clickedColumn == -1 || clickedRow == -1) {
@@ -165,16 +168,6 @@ public class GameController {
             }
         }
 
-        //skicka här med typ av okMove, typ markShip, samt skeppstorlek (och i framtiden om vertikalt/horisontellt
-
-
-        //kontrollera om klicket skulle krocka med befintliga skepp.
-
-
-//        } else {
-//            //om inte giltigt drag -> lägg till muslyssnare
-//            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
-//        }
     }
 
     private boolean allPlayersReady() {
@@ -187,6 +180,8 @@ public class GameController {
         return true;
     }
 
+
+    //MessageHandler
     public void handleClientClicked(String msg) {
 
         String[] tokens = msg.split(" ");
@@ -201,12 +196,11 @@ public class GameController {
                     shipPlacementOrientation.equals("h") ?
                             ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
         } else if (gameState == GameState.GAME_PHASE) {
-//            validateMove(clientId, clickedRow, clickedColumn);
             handleClickInGamePhase(clientId, clickedRow, clickedColumn);
         }
     }
 
-
+    //MessageHandler
     private void broadcastSinkShip(Square[] sunkenShip, int clientId, int clickedRow, int clickedColumn) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < sunkenShip.length; i++) {
@@ -226,7 +220,7 @@ public class GameController {
         SERVER.broadcastMessage(gameState + " " + "gameOver" + " " + winnerClientId);
     }
 
-
+    //MessageHandler
     private void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
 
         boolean hit = false;

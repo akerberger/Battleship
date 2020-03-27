@@ -198,7 +198,7 @@ public class BattleshipServer extends Thread {
     }
 
     private synchronized void receiveMessageFromClientThread(String msg){
-        //validerar drag. Kanske snarare ska vara handle message...
+
         gameController.handleClientClicked(msg);
 
     }
