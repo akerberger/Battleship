@@ -82,6 +82,10 @@ public class BattleshipClient {
                 throw new IllegalArgumentException(" ID already set in BattleshipClient");
             }
             id = Integer.parseInt(tokens[2]);
+        }else if (tokens[1].equals("opponentDisconnect")){
+
+            gameWindow.onOpponentDisconnect();
+
         } else {
             handleGameMessage(tokens);
         }

@@ -21,9 +21,7 @@ public class BattleshipServer extends Thread {
 
     private int serverPort;
 
-    private String hostAddress = null;
-
-//    private GameController gameController = new GameController(this);
+    private String hostAddress;
 
     private MessageHandler messageHandler = new MessageHandler(this);
 
@@ -33,12 +31,7 @@ public class BattleshipServer extends Thread {
     private boolean isAlive = false;
     private boolean isAvalible = false;
 
-    ServerSocket serverSocket;
-
-//    public BattleshipServer(Socket BattleshipClientSocket) {
-////        this.connection = BattleshipClientSocket;
-//
-//    }
+    private ServerSocket serverSocket;
 
     public BattleshipServer() throws IOException {
         serverPort = DEFAULT_PORT;
@@ -65,17 +58,15 @@ public class BattleshipServer extends Thread {
 
             try {
                 out = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()), true);
-                outputMessage("hej"+" "+"setID "+threadID);
+                outputMessage("" + " " + "setID " + threadID);
 
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String msg;
 
                 while ((msg = in.readLine()) != null) {
-//                    System.out.println("klienttråd läser : "+msg+" trådID: "+threadID);
 
                     receiveMessageFromClientThread(msg);
-                    //skickar
-//                    GUI.broadcastedMessage(connection.getInetAddress(), msg);
+
                     Thread.sleep(20);
                 }
 
@@ -84,52 +75,34 @@ public class BattleshipServer extends Thread {
                 connection.close();
 
             } catch (IOException ioe) {
+                ioe.printStackTrace();
 
             } catch (InterruptedException ie) {
-
+                ie.printStackTrace();
             }
 
             synchronized (CLIENT_THREADS) {
                 removeKilledThreadFromList(this);
+                notifyRemainingPlayer();
 //                broadcastMessage(connection.getInetAddress(), "*CLIENT DISCONNECTED*");
 //                GUI.onClientDisconnect(CLIENT_THREADS.size(), connection.getInetAddress().getHostName());
             }
 
         }
 
-        //        private void outputMessage(InetAddress clientAddress, String msg) {
+
         private void outputMessage(String msg) {
 
-//			StringBuilder sb = new StringBuilder();
-
-//            String output = "";
-//
-//            if (clientAddress == null) {
-////				sb.append("Anonymous");
-//                output += "Anonymous";
-//            } else {
-////				sb.append(clientAddress);
-//                output += clientAddress;
-//            }
-
-//			sb.append(": ");
-//			sb.append(msg);
-
-
-
-//            try {
-//                //kan inte denna göras i run och sen gör man bara out.println(msg) här?
-////                out = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()), true);
-//                out.println(msg);
-//            }
-//            catch (IOException e) {
-//                System.err.println("Fel i outputMessage: " + e);
-//            }
             out.println(msg);
         }
 
 
+    }
 
+    private synchronized  void notifyRemainingPlayer(){
+        for(ClientHandlerThread client : CLIENT_THREADS){
+            client.outputMessage(""+" "+"opponentDisconnect");
+        }
     }
 
     private synchronized void removeKilledThreadFromList(Thread thread) {
@@ -149,65 +122,54 @@ public class BattleshipServer extends Thread {
 
         System.out.println("trådar i listan efter: " + CLIENT_THREADS.size());
 
+
+
     }
 
     @Override
     public void run() {
 
+        isAlive = true;
 
-            isAlive = true;
+        //sen går den över till klienttrådarna och väntar
 
+        int clientThreadId = 1;
 
-//            GUI = new ServerGUI(InetAddress.getLocalHost().getHostName(), port);
+        while (CLIENT_THREADS.size() < 2) {
+            try {
 
-            //sen går den över till klienttrådarna och väntar
+                isAvalible = true;
 
-            int clientThreadId = 1;
+                Socket clientConnection = serverSocket.accept();
 
-            while (CLIENT_THREADS.size() < 2) {
-                try {
+                ClientHandlerThread clientThread = new ClientHandlerThread(clientConnection, clientThreadId);
 
-                    isAvalible = true;
+                CLIENT_THREADS.add(clientThread);
+                clientThread.start();
 
-                    Socket clientConnection = serverSocket.accept();
-
-                    ClientHandlerThread clientThread = new ClientHandlerThread(clientConnection, clientThreadId);
-
-                    CLIENT_THREADS.add(clientThread);
-                    clientThread.start();
-//                    GUI.onNewClientConnected(CLIENT_THREADS.size(), clientConnection.getInetAddress().getHostName());
+                messageHandler.connectedPlayer(clientThreadId);
 
 
+                System.out.println("KLIENT TILLKOPPLAD, ID: " + clientThread.threadID);
+                isAvalible = false;
+                clientThreadId++;
 
-//                    gameController.connectedPlayer(clientThreadId);
-                    messageHandler.connectedPlayer(clientThreadId);
-
-
-                    System.out.println("KLIENT TILLKOPPLAD, ID: "+clientThread.threadID);
-                    isAvalible = false;
-                    clientThreadId++;
-
-                } catch (IOException ioe) {
-                    System.err.println("Couldn't initialize new ClientHandlerThread: " + ioe);
-                }
-
+            } catch (IOException ioe) {
+                System.err.println("Couldn't initialize new ClientHandlerThread: " + ioe);
             }
-            try{
-                //kanske visa laddningsskärm eller ngt så att ingen kan trycka. Eller sköta det med att ge muslyssnare
-                //innifrån two connected players
-            Thread.sleep(1000);}catch(InterruptedException e){e.printStackTrace();}
-
-//            gameController.twoConnectedPlayers();
-            messageHandler.twoConnectedPlayers();
-
-
 
         }
+        try {
+            //kanske visa laddningsskärm eller ngt så att ingen kan trycka. Eller sköta det med att ge muslyssnare
+            //innifrån two connected players
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-//        catch (IOException ioe) {
-//            System.err.println("Couldn't start server: " + ioe);
-//
-//        }
+        messageHandler.twoConnectedPlayers();
+
+    }
 
 
     public void setAlive(boolean isAlive) {
@@ -218,8 +180,7 @@ public class BattleshipServer extends Thread {
         return isAvalible;
     }
 
-    private synchronized void receiveMessageFromClientThread(String msg){
-
+    private synchronized void receiveMessageFromClientThread(String msg) {
 
 
 //        gameController.handleClientClicked(msg);
@@ -230,21 +191,21 @@ public class BattleshipServer extends Thread {
 
     //from GameController. ha kontroller här så att det är en enum MessageType och att för varje sådan
     // typ, att det aktuella meddelandet har rätt parametrar. (eller kontrollera det nån annanstans?
-    public synchronized void sendMessageToClient(int clientId, String msg){
+    public synchronized void sendMessageToClient(int clientId, String msg) {
 
 //        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
 
-        for(ClientHandlerThread clientThread : CLIENT_THREADS){
-            if (clientThread.threadID == clientId){
+        for (ClientHandlerThread clientThread : CLIENT_THREADS) {
+            if (clientThread.threadID == clientId) {
 
                 clientThread.outputMessage(msg);
             }
         }
     }
 
-    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg){
-        for(ClientHandlerThread clientThread : CLIENT_THREADS){
-            if (clientThread.threadID != clientIdOfPreviousTurn){
+    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg) {
+        for (ClientHandlerThread clientThread : CLIENT_THREADS) {
+            if (clientThread.threadID != clientIdOfPreviousTurn) {
                 clientThread.outputMessage(msg);
                 break;
             }
