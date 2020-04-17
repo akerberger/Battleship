@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+
 //
 public class ClientReceiver extends Thread {
 
@@ -16,7 +17,7 @@ public class ClientReceiver extends Thread {
     private Socket socket;
 
     ClientReceiver(BattleshipClient client, Socket socket) {
-        this.client=client;
+        this.client = client;
         this.socket = socket;
 
     }
@@ -26,11 +27,15 @@ public class ClientReceiver extends Thread {
         try {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            //while inputen inte är "quit" eller så...
             while (true) {
-
-                client.handleReceivedMessage(in.readLine());
-                Thread.sleep(20);
+                String msg = in.readLine();
+                if (msg != null) {
+                    client.handleReceivedMessage(msg);
+                    Thread.sleep(20);
+                } else {
+                    client.handleReceivedMessage(""+" "+"opponentDisconnect");
+                    break;
+                }
             }
 
         } catch (SocketTimeoutException e) {
