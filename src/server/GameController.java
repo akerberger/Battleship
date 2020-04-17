@@ -42,11 +42,16 @@ public class GameController {
 
     }
 
-    public void connectedPlayer(Integer clientId) {
+    public void connectedPlayer(int clientId) {
         score.add(new int[]{clientId, 0});
-        playerShips.put(clientId, new ArrayList<>());
+        playerShips.put(clientId, new ArrayList<Square[]>());
     }
 
+    public GameState getCurrentGameState() {
+        return gameState;
+    }
+
+    //BoardController
     private boolean collides(Square square, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
 
         int checkingRow = clickedRow;
@@ -122,11 +127,7 @@ public class GameController {
 
 
     //MessageHandler
-    private void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
-
-        if (clickedColumn == -1 || clickedRow == -1) {
-            throw new IllegalArgumentException();
-        }
+    public void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
 
         if (!playerShips.containsKey(clientId)) {
             throw new IllegalStateException("Client with id " + clientId + " should have mapping");
@@ -160,12 +161,7 @@ public class GameController {
                 gameState = GameState.GAME_PHASE;
             }
 
-            System.out.print("SÅHÄR SER MAPEN UT I SETUP PHASE: ");
-            for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-                for (Square[] s : entry.getValue()) {
-                    System.out.print("ID: " + entry.getKey() + " " + Arrays.toString(s) + " ");
-                }
-            }
+
         }
 
     }
@@ -178,26 +174,6 @@ public class GameController {
             }
         }
         return true;
-    }
-
-
-    //MessageHandler
-    public void handleClientClicked(String msg) {
-
-        String[] tokens = msg.split(" ");
-
-        int clientId = Integer.parseInt(tokens[0]);
-        int clickedRow = Integer.parseInt(tokens[1]);
-        int clickedColumn = Integer.parseInt(tokens[2]);
-
-        if (gameState == GameState.SETUP_PHASE) {
-            String shipPlacementOrientation = tokens[3];
-            handleClickInSetupPhase(clientId, clickedRow, clickedColumn,
-                    shipPlacementOrientation.equals("h") ?
-                            ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
-        } else if (gameState == GameState.GAME_PHASE) {
-            handleClickInGamePhase(clientId, clickedRow, clickedColumn);
-        }
     }
 
     //MessageHandler
@@ -220,12 +196,12 @@ public class GameController {
         SERVER.broadcastMessage(gameState + " " + "gameOver" + " " + winnerClientId);
     }
 
-    //MessageHandler
-    private void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
+
+    //0 - miss, 1 - hitNotSunken, 2 - hitSunken, kanske returnera ett objekt, typ ShotResultInfo med info om sjunket skepp
+    private int handleShot(int clientId, int clickedRow, int clickedColumn) {
 
         boolean hit = false;
-
-        boolean gameOver = false;
+        boolean sunken = false;
 
         for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
             //if opponents MapEntry
@@ -246,56 +222,69 @@ public class GameController {
                             hitCount++;
                         }
                     }
-                    if (hit) {
-                        SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
-
-                    }
                     if (hitCount == ship.length) {
+                        sunken = true;
                         opponentShips.remove(ship);
                         broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
-
-                        if (opponentShips.size() == 0) {
-                            gameOver = true;
-                        }
                     }
                 }
-                if (!hit) {
-                    SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
-                }
-
                 //break efter man gått in i första Map.Entry som inte tillhör clienten som har turen nu
                 break;
             }
         }
 
-        System.out.println("SKEPP-MAPPEN: ");
-        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-            System.out.print("ID: " + entry.getKey() + " SHIPS: ");
-            for (Square[] ship : entry.getValue()) {
-                System.out.print(Arrays.toString(ship) + " ");
-            }
-            System.out.println();
+        if (sunken) {
+            return 2;
+        } else if (hit) {
+            return 1;
+        }
+        return 0;
+    }
+
+
+    //MessageHandler
+    public void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
+
+        int resultOfShot = handleShot(clientId, clickedRow, clickedColumn);
+
+        if (resultOfShot == 1) {
+            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
+
+        }else if (resultOfShot == 0) {
+            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
         }
 
-        if (gameOver) {
+        if (isGameOver(clientId)) {
             gameOver(clientId);
         } else {
             initiateNextTurn(clientId);
-
         }
 
 
+    }
+
+
+    private boolean isGameOver(int currentPlayer){
+
+        for(Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()){
+            if(entry.getKey() != currentPlayer){
+                if(entry.getValue().size()==0){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void initiateNextTurn(int playerOfCurrentTurn) {
         SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
     }
 
-    private enum GameState {
-        CONNECTION_PHASE,
-        SETUP_PHASE,
-        GAME_PHASE,
-        GAME_OVER
-    }
+//    private enum GameState {
+//        CONNECTION_PHASE,
+//        SETUP_PHASE,
+//        GAME_PHASE,
+//        GAME_OVER
+//    }
 
 }

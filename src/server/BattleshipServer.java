@@ -1,10 +1,14 @@
 package server;
 
+import gamecomponents.Square;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 //Only used if the player chooses "Create server"
@@ -16,8 +20,11 @@ public class BattleshipServer extends Thread {
 
     private String hostAddress = null;
 
-    private GameController gameController = new GameController(this);
+//    private GameController gameController = new GameController(this);
 
+
+
+    private MessageHandler messageHandler = new MessageHandler(this);
 
     //Gör detta till Map med id som nyckel och tråd som värde istället
     private final List<ClientHandlerThread> CLIENT_THREADS = new LinkedList<>();
@@ -164,7 +171,13 @@ public class BattleshipServer extends Thread {
                     CLIENT_THREADS.add(clientThread);
                     clientThread.start();
 //                    GUI.onNewClientConnected(CLIENT_THREADS.size(), clientConnection.getInetAddress().getHostName());
-                    gameController.connectedPlayer(clientThreadId);
+
+
+
+//                    gameController.connectedPlayer(clientThreadId);
+                    messageHandler.connectedPlayer(clientThreadId);
+
+
                     System.out.println("KLIENT TILLKOPPLAD, ID: "+clientThread.threadID);
                     isAvalible = false;
                     clientThreadId++;
@@ -180,7 +193,11 @@ public class BattleshipServer extends Thread {
             Thread.sleep(1000);}catch(InterruptedException e){e.printStackTrace();}
 
 
-            gameController.twoConnectedPlayers();
+
+
+//            gameController.twoConnectedPlayers();
+            messageHandler.twoConnectedPlayers();
+
 
 
         } catch (IOException ioe) {
@@ -199,7 +216,11 @@ public class BattleshipServer extends Thread {
 
     private synchronized void receiveMessageFromClientThread(String msg){
 
-        gameController.handleClientClicked(msg);
+
+
+//        gameController.handleClientClicked(msg);
+        messageHandler.handleClientClicked(msg);
+
 
     }
 
