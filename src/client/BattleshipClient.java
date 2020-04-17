@@ -27,7 +27,7 @@ public class BattleshipClient {
 
     private int id = -1;
 
-    public BattleshipClient(String hostName, int port) {
+    public BattleshipClient(String hostName, int port) throws IOException {
 
 //        HOST = (args.length > 0 ? args[0] : DEFAULT_HOST);
 //        HOST = DEFAULT_HOST;
@@ -49,10 +49,12 @@ public class BattleshipClient {
             //Fel i parsning av args
             e.printStackTrace();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            // fel i setUpSocket()
         }
+
+//        catch (IOException e) {
+//            e.printStackTrace();
+//            // fel i setUpSocket()
+//        }
 
     }
 

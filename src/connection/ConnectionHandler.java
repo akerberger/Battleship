@@ -4,14 +4,14 @@ import client.BattleshipClient;
 import gui.gamewindow.GameWindow;
 import server.BattleshipServer;
 
+import java.io.IOException;
+
 public class ConnectionHandler {
 
-    public void initializeConnection(boolean isHosting){
+    public void initializeConnection(boolean isHosting) throws IOException {
 
         String hostName;
         int port;
-
-        BattleshipClient client;
 
         if(isHosting) {
             BattleshipServer server = new BattleshipServer();
@@ -20,6 +20,7 @@ public class ConnectionHandler {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ie) {
+                ie.printStackTrace();
             }
 
             hostName = server.getHostAddress();
@@ -27,21 +28,14 @@ public class ConnectionHandler {
 
             System.out.println("hostar på "+hostName+" port "+port);
         }else{
-//            System.out.println("kopplar till annan server, ange ip-adress:");
+            //gör try catch och försök igen om kopplingen misslyckades (= om inget lokalt spel är uppsatt redan)
             System.out.println("kopplar till annan server");
-//            Scanner scan = new Scanner(System.in);
-
-//            hostName = scan.nextLine();
-//
-//            port = scan.nextInt();
-//            scan.nextLine();
-
             hostName = "192.168.1.97";
             port = 2000;
 
         }
 
-        client = new BattleshipClient(hostName, port);
+        BattleshipClient client = new BattleshipClient(hostName, port);
         GameWindow window = new GameWindow(client, hostName, port, isHosting);
         client.setGameWindow(window);
 

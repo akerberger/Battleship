@@ -4,6 +4,7 @@ import connection.ConnectionHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class InitialConnectionWindow extends JFrame {
 
@@ -37,15 +38,35 @@ public class InitialConnectionWindow extends JFrame {
         buttonPanel.add(connectToRemoteServerBtn);
 
         connectToRemoteServerBtn.addActionListener(e -> {
-            connectionHandler.initializeConnection(false);
-            setVisible(false);
+            boolean connectionSuccess = true;
+            try{connectionHandler.initializeConnection(false);
+
+            }catch(IOException ioe){
+                connectionSuccess = false;
+                System.out.println("hittade inget lokalt spel");
+                JOptionPane.showMessageDialog(this,"Could not find existing local game", "Error!",JOptionPane.ERROR_MESSAGE);
+            }
+            //Om boolean...
+            if(connectionSuccess){
+                setVisible(false);
+            }
         });
 
         JButton createServerBtn = new JButton("Host local game");
         buttonPanel.add(createServerBtn);
         createServerBtn.addActionListener(e -> {
-            connectionHandler.initializeConnection(true);
-            setVisible(false);
+            boolean connectionSuccess = true;
+            try{connectionHandler.initializeConnection(true);
+
+            }catch(IOException ioe){
+                System.out.println("fel i göra egen server");
+                connectionSuccess = false;
+                JOptionPane.showMessageDialog(this,"Local game already exists. Why not join it?", "Error!",JOptionPane.ERROR_MESSAGE);
+            }
+            if(connectionSuccess){
+                setVisible(false);
+            }
+
         });
 
     }

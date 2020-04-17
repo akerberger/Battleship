@@ -5,10 +5,13 @@ import gamecomponents.Square;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static java.net.InetAddress.getLocalHost;
 
 
 //Only used if the player chooses "Create server"
@@ -22,8 +25,6 @@ public class BattleshipServer extends Thread {
 
 //    private GameController gameController = new GameController(this);
 
-
-
     private MessageHandler messageHandler = new MessageHandler(this);
 
     //Gör detta till Map med id som nyckel och tråd som värde istället
@@ -32,13 +33,17 @@ public class BattleshipServer extends Thread {
     private boolean isAlive = false;
     private boolean isAvalible = false;
 
+    ServerSocket serverSocket;
+
 //    public BattleshipServer(Socket BattleshipClientSocket) {
 ////        this.connection = BattleshipClientSocket;
 //
 //    }
 
-    public BattleshipServer() {
+    public BattleshipServer() throws IOException {
         serverPort = DEFAULT_PORT;
+        serverSocket = new ServerSocket(serverPort);
+        hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
 
     }
 
@@ -149,9 +154,9 @@ public class BattleshipServer extends Thread {
     @Override
     public void run() {
 
-        try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
+
             isAlive = true;
-            hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
+
 
 //            GUI = new ServerGUI(InetAddress.getLocalHost().getHostName(), port);
 
@@ -192,19 +197,18 @@ public class BattleshipServer extends Thread {
                 //innifrån two connected players
             Thread.sleep(1000);}catch(InterruptedException e){e.printStackTrace();}
 
-
-
-
 //            gameController.twoConnectedPlayers();
             messageHandler.twoConnectedPlayers();
 
 
 
-        } catch (IOException ioe) {
-            System.err.println("Couldn't start server: " + ioe);
-
         }
-    }
+
+//        catch (IOException ioe) {
+//            System.err.println("Couldn't start server: " + ioe);
+//
+//        }
+
 
     public void setAlive(boolean isAlive) {
         this.isAlive = isAlive;
