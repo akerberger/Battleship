@@ -8,7 +8,6 @@ public class MessageHandler {
 
     private final GameController GAME_CONTROLLER;
 
-
     public MessageHandler(BattleshipServer battleshipServer){
         this.SERVER = battleshipServer;
        GAME_CONTROLLER = new GameController(SERVER);

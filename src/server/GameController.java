@@ -2,7 +2,6 @@ package server;
 
 import gamecomponents.ShipPlacementOrientation;
 import gamecomponents.Square;
-import gui.gamewindow.GameWindow;
 
 import java.util.*;
 
@@ -153,7 +152,7 @@ public class GameController {
 
             if (shipsOfPlayer.size() < SHIPS_PER_PLAYER) {
                 //notOkMove bara för att spelaren ska få ny placeringsvända i setupphase. Ändra detta!!!
-                SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove");
+                SERVER.sendMessageToClient(clientId, gameState + " " + "newShipPlacementTurn");
             } else if (allPlayersReady()) {
                 //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
 
@@ -191,9 +190,9 @@ public class GameController {
         SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + sb.toString());
     }
 
-    private void gameOver(int winnerClientId) {
+    private void setGameOver(int winnerClientId) {
         gameState = GameState.GAME_OVER;
-        SERVER.broadcastMessage(gameState + " " + "gameOver" + " " + winnerClientId);
+        SERVER.broadcastMessage(gameState + " " + "setGameOver" + " " + winnerClientId);
     }
 
 
@@ -250,12 +249,12 @@ public class GameController {
         if (resultOfShot == 1) {
             SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
 
-        }else if (resultOfShot == 0) {
+        } else if (resultOfShot == 0) {
             SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
         }
 
         if (isGameOver(clientId)) {
-            gameOver(clientId);
+            setGameOver(clientId);
         } else {
             initiateNextTurn(clientId);
         }
@@ -264,11 +263,11 @@ public class GameController {
     }
 
 
-    private boolean isGameOver(int currentPlayer){
+    private boolean isGameOver(int currentPlayer) {
 
-        for(Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()){
-            if(entry.getKey() != currentPlayer){
-                if(entry.getValue().size()==0){
+        for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
+            if (entry.getKey() != currentPlayer) {
+                if (entry.getValue().size() == 0) {
                     return true;
                 }
             }

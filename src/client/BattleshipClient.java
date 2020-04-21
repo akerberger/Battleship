@@ -101,6 +101,11 @@ public class BattleshipClient {
         String messageType = msgTokens[1];
 
         switch (messageType) {
+            case "newShipPlacementTurn":
+                gameWindow.addMouseListeners(true);
+                System.out.println("TAR NY PLACERINGVÄNDA");
+
+                break;
             case "placeShip":
                 ShipPlacementOrientation orientation =
                         (msgTokens[5].equals("h") ? ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);

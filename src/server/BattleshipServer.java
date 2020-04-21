@@ -101,7 +101,7 @@ public class BattleshipServer extends Thread {
 
     private synchronized  void notifyRemainingPlayer(){
         for(ClientHandlerThread client : CLIENT_THREADS){
-            client.outputMessage(""+" "+"opponentDisconnect");
+            client.outputMessage(""+" "+"opponentDisconnect"+" ");
         }
     }
 

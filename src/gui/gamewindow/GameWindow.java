@@ -104,7 +104,7 @@ public class GameWindow extends JFrame {
     public void onOpponentDisconnect(){
         own.removeSquareListeners();
         opponents.removeSquareListeners();
-        JOptionPane.showMessageDialog(this,"Opponent disconnected. Game Over (you win!)");
+        JOptionPane.showMessageDialog(this,"Opponent disconnected!");
     }
 
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
