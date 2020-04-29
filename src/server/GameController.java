@@ -241,6 +241,7 @@ public class GameController {
     }
 
 
+
     //MessageHandler
     public void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
 

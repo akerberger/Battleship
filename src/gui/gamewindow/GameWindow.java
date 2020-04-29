@@ -107,6 +107,10 @@ public class GameWindow extends JFrame {
         JOptionPane.showMessageDialog(this,"Opponent disconnected!");
     }
 
+    public void socketTimedOut(){
+        JOptionPane.showMessageDialog(this,"You have been inactive too long! Restart program to start new game!");
+    }
+
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
         if (onOpponentsBoard) {
             opponents.markSunkenShipSquare(row, column);

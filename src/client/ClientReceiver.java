@@ -39,8 +39,9 @@ public class ClientReceiver extends Thread {
             }
 
         } catch (SocketTimeoutException e) {
-            System.err.println("No response from opponent ");
+            System.err.println("You timed out ");
             e.printStackTrace();
+            client.socketTimedOut();
 
         } catch (IOException e) {
             e.printStackTrace();

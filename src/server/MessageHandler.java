@@ -22,23 +22,28 @@ public class MessageHandler {
         GAME_CONTROLLER.twoConnectedPlayers();
     }
 
-    public void handleClientClicked(String msg){
+    public void handleClientMsg(String msg){
 
             String[] tokens = msg.split(" ");
 
             int clientId = Integer.parseInt(tokens[0]);
-            int clickedRow = Integer.parseInt(tokens[1]);
-            int clickedColumn = Integer.parseInt(tokens[2]);
 
-            GameState currentGameState = GAME_CONTROLLER.getCurrentGameState();
+            if(tokens[1].equals("socketTimedOut")){
+              SERVER.socketTimedOut(clientId);
+            }else{
+                 int clickedRow = Integer.parseInt(tokens[1]);
+                 int clickedColumn = Integer.parseInt(tokens[2]);
 
-            if (currentGameState == GameState.SETUP_PHASE) {
-                String shipPlacementOrientation = tokens[3];
-                GAME_CONTROLLER.handleClickInSetupPhase(clientId, clickedRow, clickedColumn,
-                        shipPlacementOrientation.equals("h") ?
-                                ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
-            } else if (currentGameState == GameState.GAME_PHASE) {
-                GAME_CONTROLLER.handleClickInGamePhase(clientId, clickedRow, clickedColumn);
+                 GameState currentGameState = GAME_CONTROLLER.getCurrentGameState();
+
+                 if (currentGameState == GameState.SETUP_PHASE) {
+                     String shipPlacementOrientation = tokens[3];
+                     GAME_CONTROLLER.handleClickInSetupPhase(clientId, clickedRow, clickedColumn,
+                             shipPlacementOrientation.equals("h") ?
+                                     ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
+                 } else if (currentGameState == GameState.GAME_PHASE) {
+                     GAME_CONTROLLER.handleClickInGamePhase(clientId, clickedRow, clickedColumn);
+                 }
             }
         }
 

@@ -25,7 +25,13 @@ public class InitialConnectionWindow extends JFrame {
             try {
                 connectionHandler.initializeConnection(hostGameBtnClicked);
                 InitialConnectionWindow.this.setVisible(false);
-            } catch (IOException ioe) {
+            }catch(NumberFormatException nfe){
+                JOptionPane.showMessageDialog(InitialConnectionWindow.this,
+                        "Could not start game! ",
+                        "Error!", JOptionPane.ERROR_MESSAGE);
+                nfe.printStackTrace();
+            }
+            catch (IOException ioe) {
                 JOptionPane.showMessageDialog(InitialConnectionWindow.this,
                         hostGameBtnClicked ? "Local game is already running" :  "Could not find existing local game",
                         "Error!", JOptionPane.ERROR_MESSAGE);

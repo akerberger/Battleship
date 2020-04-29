@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.Arrays;
 
 
-//Byt namn till Player, mer rimligt...
+
 public class BattleshipClient {
 
 //    private final String DEFAULT_HOST = "127.0.0.1";
@@ -34,7 +34,7 @@ public class BattleshipClient {
 
         HOST = hostName;
         PORT = port;
-        try {
+
 //            PORT =  (args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_PORT);
 
             Socket socket = setUpSocket();
@@ -45,16 +45,6 @@ public class BattleshipClient {
             receiver.start();
 
 
-        } catch (NumberFormatException e) {
-            //Fel i parsning av args
-            e.printStackTrace();
-
-        }
-
-//        catch (IOException e) {
-//            e.printStackTrace();
-//            // fel i setUpSocket()
-//        }
 
     }
 
@@ -62,14 +52,12 @@ public class BattleshipClient {
         this.gameWindow = gameWindow;
     }
 
-    //Behöver vara trådad, annars låser programmet på listen-metoden
-
-
     private Socket setUpSocket() throws IOException {
 
         Socket socket = new Socket(HOST, PORT);
         //5 min
-        socket.setSoTimeout(300 * 1000);
+//        socket.setSoTimeout(300 * 1000);
+        socket.setSoTimeout(10000);
 
         return socket;
     }
@@ -89,6 +77,12 @@ public class BattleshipClient {
         } else {
             handleGameMessage(tokens);
         }
+
+    }
+
+    public void socketTimedOut(){
+        out.reportSocketTimedOut(id);
+        gameWindow.socketTimedOut();
 
     }
 

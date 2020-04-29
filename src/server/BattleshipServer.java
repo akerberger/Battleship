@@ -63,7 +63,8 @@ public class BattleshipServer extends Thread {
                 in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String msg;
 
-                while ((msg = in.readLine()) != null) {
+                //null om egna spelaren stänger fönstret, "socketTimeOut" om egna spelaren inaktiv för länge
+                while ((msg = in.readLine()) != null && !msg.equals("socketTimedOut")) {
 
                     receiveMessageFromClientThread(msg);
 
@@ -81,15 +82,13 @@ public class BattleshipServer extends Thread {
                 ie.printStackTrace();
             }
 
-            synchronized (CLIENT_THREADS) {
-                removeKilledThreadFromList(this);
-                notifyRemainingPlayer();
-//                broadcastMessage(connection.getInetAddress(), "*CLIENT DISCONNECTED*");
-//                GUI.onClientDisconnect(CLIENT_THREADS.size(), connection.getInetAddress().getHostName());
-            }
+            actionsForKillThread(threadID);
 
         }
 
+        public int getThreadID(){
+            return threadID;
+        }
 
         private void outputMessage(String msg) {
 
@@ -99,31 +98,37 @@ public class BattleshipServer extends Thread {
 
     }
 
+    void actionsForKillThread(int threadID){
+        System.out.println("KOPPLAR IFRÅN VA");
+        synchronized (CLIENT_THREADS) {
+            removeKilledThreadFromList(threadID);
+            notifyRemainingPlayer();
+        }
+    }
+
     private synchronized  void notifyRemainingPlayer(){
         for(ClientHandlerThread client : CLIENT_THREADS){
             client.outputMessage(""+" "+"opponentDisconnect"+" ");
         }
     }
 
-    private synchronized void removeKilledThreadFromList(Thread thread) {
-        System.out.println("trådar i listan innan: " + CLIENT_THREADS.size());
+    void socketTimedOut(int idOfTimedOutClient){
+        actionsForKillThread(idOfTimedOutClient);
+    }
 
-        Thread toRemove = null;
+    private synchronized void removeKilledThreadFromList(int idOfThreadToRemove) {
+        System.out.println("tar bord med id: "+idOfThreadToRemove+" Trådar i listan innan: " + CLIENT_THREADS.size());
 
-        for (ClientHandlerThread client : CLIENT_THREADS) {
-            if (client.getId() == thread.getId()) {
-                toRemove = client;
+
+        for(int i = 0; i<CLIENT_THREADS.size(); i++){
+            if (CLIENT_THREADS.get(i).getThreadID() == idOfThreadToRemove) {
+                CLIENT_THREADS.remove(i);
+                break;
             }
         }
 
-        if (toRemove != null) {
-            CLIENT_THREADS.remove(toRemove);
-        }
-
         System.out.println("trådar i listan efter: " + CLIENT_THREADS.size());
-
-
-
+        
     }
 
     @Override
@@ -161,7 +166,7 @@ public class BattleshipServer extends Thread {
         }
         try {
             //kanske visa laddningsskärm eller ngt så att ingen kan trycka. Eller sköta det med att ge muslyssnare
-            //innifrån two connected players
+            //innifrån two connected players....
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -182,9 +187,14 @@ public class BattleshipServer extends Thread {
 
     private synchronized void receiveMessageFromClientThread(String msg) {
 
+        for(String s : msg.split(" ")){
+            if(s.equals("socketTimedOut")){
+                System.out.println("FICK MESS OM BORTKOPPLAD");
+            }
+        }
 
 //        gameController.handleClientClicked(msg);
-        messageHandler.handleClientClicked(msg);
+        messageHandler.handleClientMsg(msg);
 
 
     }
