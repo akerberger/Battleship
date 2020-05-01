@@ -8,12 +8,7 @@ import java.net.Socket;
 import java.util.Arrays;
 
 
-
 public class BattleshipClient {
-
-//    private final String DEFAULT_HOST = "127.0.0.1";
-    //	private final String DEFAULT_HOST = "212.247.27.18";
-//    private final int DEFAULT_PORT = 2000;
 
     private String HOST;
 
@@ -29,21 +24,15 @@ public class BattleshipClient {
 
     public BattleshipClient(String hostName, int port) throws IOException {
 
-//        HOST = (args.length > 0 ? args[0] : DEFAULT_HOST);
-//        HOST = DEFAULT_HOST;
-
         HOST = hostName;
         PORT = port;
 
-//            PORT =  (args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_PORT);
+        Socket socket = setUpSocket();
 
-            Socket socket = setUpSocket();
+        out = new ClientSender(socket);
 
-            out = new ClientSender(socket);
-
-            ClientReceiver receiver = new ClientReceiver(this, socket);
-            receiver.start();
-
+        ClientReceiver receiver = new ClientReceiver(this, socket);
+        receiver.start();
 
 
     }
@@ -69,7 +58,7 @@ public class BattleshipClient {
                 throw new IllegalArgumentException(" ID already set in BattleshipClient");
             }
             id = Integer.parseInt(tokens[2]);
-        }else if (tokens[1].equals("opponentDisconnect")){
+        } else if (tokens[1].equals("opponentDisconnect")) {
 
             gameWindow.onOpponentDisconnect();
 
@@ -79,7 +68,7 @@ public class BattleshipClient {
 
     }
 
-    public void socketTimedOut(){
+    public void socketTimedOut() {
         out.reportSocketTimedOut(id);
         gameWindow.socketTimedOut();
 
@@ -152,7 +141,7 @@ public class BattleshipClient {
         }
     }
 
-    private void gameOver(int winningPlayerId){
+    private void gameOver(int winningPlayerId) {
         gameWindow.gameOver(winningPlayerId == id);
     }
 

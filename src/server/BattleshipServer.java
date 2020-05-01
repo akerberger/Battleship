@@ -28,6 +28,7 @@ public class BattleshipServer extends Thread {
         serverPort = DEFAULT_PORT;
         serverSocket = new ServerSocket(serverPort);
         hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
+        
 
     }
 
