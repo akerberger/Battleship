@@ -5,28 +5,21 @@ import gui.gamewindow.GameWindow;
 import server.BattleshipServer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 public class ConnectionHandler {
 
     public void initializeConnection(boolean isHosting) throws IOException {
 
-        String hostName;
-        int port;
+        InetAddress hostAddress = InetAddress.getByName("localhost");
+        int defaultPort = 2000;
 
         if(isHosting) {
-            BattleshipServer server = new BattleshipServer();
-            server.start();
-
-            hostName = server.getHostAddress();
-            port = server.getPort();
-
-        }else{
-            hostName = "192.168.1.97";
-            port = 2000;
+            new BattleshipServer(defaultPort).start();
         }
 
-        BattleshipClient client = new BattleshipClient(hostName, port);
-        GameWindow window = new GameWindow(client, hostName, port, isHosting);
+        BattleshipClient client = new BattleshipClient(hostAddress, defaultPort);
+        GameWindow window = new GameWindow(client, hostAddress, defaultPort, isHosting);
         client.setGameWindow(window);
 
     }

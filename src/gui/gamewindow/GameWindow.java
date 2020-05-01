@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.InetAddress;
 
 public class GameWindow extends JFrame {
 
@@ -27,9 +28,10 @@ public class GameWindow extends JFrame {
     private final ImageIcon MISS_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluebackground.png"));
     private final ImageIcon SUNKEN_SHIP_SQUARE_ICON = new ImageIcon(getClass().getClassLoader().getResource("skull.png"));
 
-    public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
+//    public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
+public GameWindow(BattleshipClient client, InetAddress hostName, int port, boolean isHosting) {
         super((isHosting ? "Hosting game at " : "Connected to game at ") +
-                hostName + ", through port " + port);
+                hostName.getHostAddress() + ", through port " + port);
 
         this.client = client;
         setLayout(new BorderLayout());

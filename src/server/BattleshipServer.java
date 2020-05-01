@@ -1,6 +1,7 @@
 package server;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -10,11 +11,13 @@ import java.util.List;
 //Only used if the player chooses "Create server"
 public class BattleshipServer extends Thread {
 
-    private final int DEFAULT_PORT = 2000;
 
-    private int serverPort;
 
-    private String hostAddress;
+    private final int PORT;
+
+//    private String hostAddress;
+
+    private InetAddress hostAddress;
 
     private MessageHandler messageHandler = new MessageHandler(this);
 
@@ -24,11 +27,11 @@ public class BattleshipServer extends Thread {
 
     private ServerSocket serverSocket;
 
-    public BattleshipServer() throws IOException {
-        serverPort = DEFAULT_PORT;
-        serverSocket = new ServerSocket(serverPort);
-        hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
-        
+    public BattleshipServer(int port) throws IOException {
+        PORT = port;
+        serverSocket = new ServerSocket(PORT);
+//        hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
+        hostAddress=serverSocket.getInetAddress();
 
     }
 
@@ -215,11 +218,15 @@ public class BattleshipServer extends Thread {
     }
 
     public int getPort() {
-        return serverPort;
+        return PORT;
     }
 
 
-    public String getHostAddress() {
+//    public String getHostAddress() {
+//        return hostAddress;
+//    }
+
+    public InetAddress getHostAddress(){
         return hostAddress;
     }
 

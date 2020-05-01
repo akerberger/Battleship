@@ -4,14 +4,17 @@ import gamecomponents.ShipPlacementOrientation;
 import gui.gamewindow.GameWindow;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 
 
 public class BattleshipClient {
 
-    private String HOST;
+//    private String HOST;
 
+
+    private InetAddress HOST;
     private int PORT;
 
     private ClientSender out;
@@ -22,18 +25,14 @@ public class BattleshipClient {
 
     private int id = -1;
 
-    public BattleshipClient(String hostName, int port) throws IOException {
-
-        HOST = hostName;
+    public BattleshipClient(InetAddress host, int port) throws IOException {
+        HOST = host;
         PORT = port;
 
         Socket socket = setUpSocket();
-
         out = new ClientSender(socket);
 
-        ClientReceiver receiver = new ClientReceiver(this, socket);
-        receiver.start();
-
+        new ClientReceiver(this, socket).start();
 
     }
 
@@ -44,6 +43,9 @@ public class BattleshipClient {
     private Socket setUpSocket() throws IOException {
 
         Socket socket = new Socket(HOST, PORT);
+
+
+
         //5 min
         socket.setSoTimeout(300 * 1000);
 
