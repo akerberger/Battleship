@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 public class GameWindow extends JFrame {
 
@@ -19,6 +20,11 @@ public class GameWindow extends JFrame {
 
     private final PlayingBoard own = new PlayingBoard(this, true);
     private final PlayingBoard opponents = new PlayingBoard(this, false);
+
+    private final ImageIcon HIT_ON_OPPONENTS_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("redcross.png"));
+    private final ImageIcon MISS_ON_OPPONENTS_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluecross.png"));
+    private final ImageIcon HIT_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("redbackground.png"));
+    private final ImageIcon MISS_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluebackground.png"));
 
 
     public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
@@ -67,17 +73,17 @@ public class GameWindow extends JFrame {
 
         if (isMyClick) {
             if (isHit) {
-                opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redcross.png"));
+                opponents.markShot(row, column, isHit, HIT_ON_OPPONENTS_BOARD_ICON);
             } else {
-                opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluecross.png"));
+                opponents.markShot(row, column, isHit, MISS_ON_OPPONENTS_BOARD_ICON);
             }
 
         } else {
             if (isHit) {
-                own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redbackground.png"));
+                own.markShot(row, column, isHit, HIT_ON_MY_BOARD_ICON);
             } else {
 
-                own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluebackground.png"));
+                own.markShot(row, column, isHit, MISS_ON_MY_BOARD_ICON);
             }
 
         }
