@@ -46,8 +46,8 @@ public class PlayingBoard extends JPanel {
         gameWindow.sendClick(row, column);
     }
 
-    public void markSunkenShipSquare(int row, int column){
-        squares[row-1][column-1].markSunkenShip();
+    public void markSunkenShipSquare(int row, int column, ImageIcon icon){
+        squares[row-1][column-1].markSunkenShip(icon);
     }
 
     public void markShot(int row, int column, boolean isHit, ImageIcon icon){

@@ -57,12 +57,12 @@ public class Square extends JPanel {
 
 
     //Sätt döskalle på sänkt ruta
-    public void markSunkenShip(){
+    public void markSunkenShip(ImageIcon icon){
         isShot=true;
 
         hasSunkenShip=true;
 
-
+        this.icon = icon;
 
         repaint();
 
@@ -103,19 +103,13 @@ public class Square extends JPanel {
     public void paintComponent(Graphics g){
         super.paintComponent(g);
 
-
-        if(hasSunkenShip){
+        if(hasSunkenShip) {
             setBackground(Color.RED);
-            ImageIcon skull = new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/skull.png");
-            g.drawImage(skull.getImage(), 6,6,20,20,this);
         }
 
-        else if(isShot){
-
+        if(icon != null){
             g.drawImage(icon.getImage(), 5,5,20,20,this);
         }
-
-
     }
 
 

@@ -25,7 +25,7 @@ public class GameWindow extends JFrame {
     private final ImageIcon MISS_ON_OPPONENTS_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluecross.png"));
     private final ImageIcon HIT_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("redbackground.png"));
     private final ImageIcon MISS_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluebackground.png"));
-
+    private final ImageIcon SUNKEN_SHIP_SQUARE_ICON = new ImageIcon(getClass().getClassLoader().getResource("skull.png"));
 
     public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
         super((isHosting ? "Hosting game at " : "Connected to game at ") +
@@ -101,9 +101,9 @@ public class GameWindow extends JFrame {
 
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
         if (onOpponentsBoard) {
-            opponents.markSunkenShipSquare(row, column);
+            opponents.markSunkenShipSquare(row, column, SUNKEN_SHIP_SQUARE_ICON);
         } else {
-            own.markSunkenShipSquare(row, column);
+            own.markSunkenShipSquare(row, column, SUNKEN_SHIP_SQUARE_ICON);
         }
     }
 
