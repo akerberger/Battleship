@@ -1,17 +1,10 @@
 package server;
 
-import gamecomponents.Square;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import static java.net.InetAddress.getLocalHost;
 
 
 //Only used if the player chooses "Create server"
@@ -26,10 +19,8 @@ public class BattleshipServer extends Thread {
     private MessageHandler messageHandler = new MessageHandler(this);
 
     //Gör detta till Map med id som nyckel och tråd som värde istället
-    private final List<ClientHandlerThread> CLIENT_THREADS = new LinkedList<>();
+    private final List<ClientThread> CLIENT_THREADS = new LinkedList<>();
 
-    private boolean isAlive = false;
-    private boolean isAvalible = false;
 
     private ServerSocket serverSocket;
 
@@ -40,14 +31,14 @@ public class BattleshipServer extends Thread {
 
     }
 
-    private class ClientHandlerThread extends Thread {
+    private class ClientThread extends Thread {
         Socket connection;
         BufferedReader in;
         PrintWriter out;
         int threadID;
 
 
-        public ClientHandlerThread(Socket connection, int threadID) {
+        public ClientThread(Socket connection, int threadID) {
             this.connection = connection;
             this.threadID = threadID;
 
@@ -86,7 +77,7 @@ public class BattleshipServer extends Thread {
 
         }
 
-        public int getThreadID(){
+        public int getThreadID() {
             return threadID;
         }
 
@@ -98,7 +89,7 @@ public class BattleshipServer extends Thread {
 
     }
 
-    void actionsForKillThread(int threadID){
+    void actionsForKillThread(int threadID) {
         System.out.println("KOPPLAR IFRÅN VA");
         synchronized (CLIENT_THREADS) {
             removeKilledThreadFromList(threadID);
@@ -106,21 +97,21 @@ public class BattleshipServer extends Thread {
         }
     }
 
-    private synchronized  void notifyRemainingPlayer(){
-        for(ClientHandlerThread client : CLIENT_THREADS){
-            client.outputMessage(""+" "+"opponentDisconnect"+" ");
+    private synchronized void notifyRemainingPlayer() {
+        for (ClientThread client : CLIENT_THREADS) {
+            client.outputMessage("" + " " + "opponentDisconnect" + " ");
         }
     }
 
-    void socketTimedOut(int idOfTimedOutClient){
+    void socketTimedOut(int idOfTimedOutClient) {
         actionsForKillThread(idOfTimedOutClient);
     }
 
     private synchronized void removeKilledThreadFromList(int idOfThreadToRemove) {
-        System.out.println("tar bord med id: "+idOfThreadToRemove+" Trådar i listan innan: " + CLIENT_THREADS.size());
+        System.out.println("tar bord med id: " + idOfThreadToRemove + " Trådar i listan innan: " + CLIENT_THREADS.size());
 
 
-        for(int i = 0; i<CLIENT_THREADS.size(); i++){
+        for (int i = 0; i < CLIENT_THREADS.size(); i++) {
             if (CLIENT_THREADS.get(i).getThreadID() == idOfThreadToRemove) {
                 CLIENT_THREADS.remove(i);
                 break;
@@ -128,43 +119,42 @@ public class BattleshipServer extends Thread {
         }
 
         System.out.println("trådar i listan efter: " + CLIENT_THREADS.size());
-        
+
+    }
+
+    private void actionsForClientConnected(Socket clientConnection, int clientThreadId) {
+
+
+        ClientThread clientThread = new ClientThread(clientConnection, clientThreadId);
+        CLIENT_THREADS.add(clientThread);
+        clientThread.start();
+
+
     }
 
     @Override
     public void run() {
-
-        isAlive = true;
-
-        //sen går den över till klienttrådarna och väntar
 
         int clientThreadId = 1;
 
         while (CLIENT_THREADS.size() < 2) {
             try {
 
-                isAvalible = true;
-
                 Socket clientConnection = serverSocket.accept();
 
-                ClientHandlerThread clientThread = new ClientHandlerThread(clientConnection, clientThreadId);
-
-                CLIENT_THREADS.add(clientThread);
-                clientThread.start();
+                actionsForClientConnected(clientConnection, clientThreadId);
 
                 messageHandler.connectedPlayer(clientThreadId);
 
-
-                System.out.println("KLIENT TILLKOPPLAD, ID: " + clientThread.threadID);
-                isAvalible = false;
                 clientThreadId++;
 
             } catch (IOException ioe) {
-                System.err.println("Couldn't initialize new ClientHandlerThread: " + ioe);
+                System.err.println("Couldn't initialize new ClientThread: " + ioe);
             }
 
         }
         try {
+            //väntar så att inte exeveringen kör ifrån den nya tillkopplade klienten...
             //kanske visa laddningsskärm eller ngt så att ingen kan trycka. Eller sköta det med att ge muslyssnare
             //innifrån two connected players....
             Thread.sleep(1000);
@@ -177,18 +167,10 @@ public class BattleshipServer extends Thread {
     }
 
 
-    public void setAlive(boolean isAlive) {
-        this.isAlive = isAlive;
-    }
-
-    public boolean isAvalible() {
-        return isAvalible;
-    }
-
     private synchronized void receiveMessageFromClientThread(String msg) {
 
-        for(String s : msg.split(" ")){
-            if(s.equals("socketTimedOut")){
+        for (String s : msg.split(" ")) {
+            if (s.equals("socketTimedOut")) {
                 System.out.println("FICK MESS OM BORTKOPPLAD");
             }
         }
@@ -205,7 +187,7 @@ public class BattleshipServer extends Thread {
 
 //        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
 
-        for (ClientHandlerThread clientThread : CLIENT_THREADS) {
+        for (ClientThread clientThread : CLIENT_THREADS) {
             if (clientThread.threadID == clientId) {
 
                 clientThread.outputMessage(msg);
@@ -214,7 +196,7 @@ public class BattleshipServer extends Thread {
     }
 
     public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg) {
-        for (ClientHandlerThread clientThread : CLIENT_THREADS) {
+        for (ClientThread clientThread : CLIENT_THREADS) {
             if (clientThread.threadID != clientIdOfPreviousTurn) {
                 clientThread.outputMessage(msg);
                 break;
@@ -223,11 +205,8 @@ public class BattleshipServer extends Thread {
     }
 
     public synchronized void broadcastMessage(String msg) {
-//        String[] tokens = msg.split(" ");
 
-//        System.out.println(Arrays.toString(tokens));
-
-        for (ClientHandlerThread client : CLIENT_THREADS) {
+        for (ClientThread client : CLIENT_THREADS) {
 
             client.outputMessage(msg);
         }
@@ -240,7 +219,6 @@ public class BattleshipServer extends Thread {
 
 
     public String getHostAddress() {
-
         return hostAddress;
     }
 

@@ -16,23 +16,32 @@ public class SidePanel extends JPanel {
     }
 
     private class NorthPanel extends JPanel{
-        JLabel northLabel = new JLabel("Waiting...");
+        JTextArea northTextArea = new JTextArea("Waiting for opponent\nto connect...");
 
+        JTextArea gameInstructionText = new JTextArea("");
 
         public NorthPanel(){
-            add(northLabel);
+            setLayout(new GridLayout(2,1, 0,20));
+            northTextArea.setEditable(false);
+            gameInstructionText.setEditable(false);
+            add(northTextArea);
+            add(gameInstructionText);
         }
 
-        void setLabelText(String text){
-            northLabel.setText(text);
+        void setText(String text){
+            northTextArea.setText(text);
+        }
+
+        void setGameInstructionText(String text){
+            gameInstructionText.setText(text);
         }
     }
 
     private class SouthPanel extends JPanel{
 
         JTextArea gameInstructionText = new JTextArea("");
-        JTextArea shipDescriptionText = new JTextArea("*Ship description*");
-        JLabel shipDirectionText = new JLabel("Ship direction: Horizontal");
+        JTextArea shipDescriptionText = new JTextArea("");
+        JLabel shipDirectionText = new JLabel("");
 
 
         public SouthPanel(){
@@ -59,17 +68,30 @@ public class SidePanel extends JPanel {
 
 
     public void setupPhase(){
-        northPanel.setLabelText("SETUP PHASE!");
+        northPanel.setText("SETUP PHASE!");
+        northPanel.setGameInstructionText("Place 3 ships on your board\nthen wait for opponent\nto get ready...");
         southPanel.setShipDescriptionText("Ship: Cruiser - \n3 squares");
+        southPanel.setShipDirectionText("Ship direction: Horizontal");
         southPanel.setGameInstructionText("<- Klick on the square \nof your board where \nyour ship should be placed");
     }
 
-    public void gamePhase(){
-        northPanel.setLabelText("GAME PHASE!");
+    public void gamePhase(boolean iGoFirst){
+        northPanel.setText("GAME PHASE!");
         southPanel.setShipDescriptionText("");
-        southPanel.setGameInstructionText("Klick on a square \nof opponents board where \nyou want to shoot");
+        southPanel.setShipDirectionText("");
+        southPanel.setGameInstructionText("");
+        northPanel.setGameInstructionText((iGoFirst ? "My turn!\nKlick on a square \nof opponents board where \nyou want to shoot":"Opponents turn..."));
     }
 
+    public void gameOver(String gameOverText){
+        setLabelText("GAME OVER!");
+        northPanel.setGameInstructionText(gameOverText);
+
+    }
+
+    public void gameInstructionTextForNewTurn(boolean wasMyTurn){
+        northPanel.setGameInstructionText((wasMyTurn ? "Opponents turn...":"My turn!\nKlick on a square \nof opponents board where \nyou want to shoot"));
+    }
 
     public void setShipDirectionLabelText(String text){
         southPanel.setShipDirectionText(text);
@@ -77,6 +99,6 @@ public class SidePanel extends JPanel {
     }
 
     public void setLabelText(String text) {
-        northPanel.setLabelText(text);
+        northPanel.setText(text);
     }
 }

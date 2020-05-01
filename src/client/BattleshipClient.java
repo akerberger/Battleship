@@ -56,8 +56,7 @@ public class BattleshipClient {
 
         Socket socket = new Socket(HOST, PORT);
         //5 min
-//        socket.setSoTimeout(300 * 1000);
-        socket.setSoTimeout(10000);
+        socket.setSoTimeout(300 * 1000);
 
         return socket;
     }
@@ -111,6 +110,7 @@ public class BattleshipClient {
                 int row = Integer.parseInt(msgTokens[3]);
                 int column = Integer.parseInt(msgTokens[4]);
                 gameWindow.markShot(row, column, senderId == id, msgTokens[5].equals("hit"));
+                gameWindow.setNewTurnInfo(senderId == id);
                 break;
             case "sinkShip":
                 int idOfClicker = Integer.parseInt(msgTokens[2]);
@@ -120,6 +120,7 @@ public class BattleshipClient {
                     gameWindow.markSunkenShipSquare(Integer.parseInt(msgTokens[tokenIndexOffset]), Integer.parseInt(msgTokens[tokenIndexOffset + 1]), idOfClicker == id);
                     tokenIndexOffset += 2;
                 }
+                gameWindow.setNewTurnInfo(idOfClicker == id);
                 break;
             case "notOkMove":
                 //  beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
@@ -135,15 +136,15 @@ public class BattleshipClient {
                 if (newPhase.equals("setupPhase")) {
 //                    GameController.setGameState(GameState.SETUP_PHASE);
                     gameWindow.setupPhase();
+
                 } else if (newPhase.equals("gamePhase")) {
                     int starterPlayerId = Integer.parseInt(msgTokens[3]);
 //                    GameController.setGameState(GameState.GAME_PHASE);
                     gameWindow.gamePhase(id == starterPlayerId);
                 }
                 break;
-            case "gameOver":
+            case "setGameOver":
 
-//                System.out.println("VINNARE: ")
                 int winningPlayerId = Integer.parseInt(msgTokens[2]);
                 gameOver(winningPlayerId);
                 break;
@@ -156,9 +157,7 @@ public class BattleshipClient {
     }
 
     public void sendClick(int row, int column) {
-
         out.sendClick(id, row, column, shipPlacementHorizontal);
-
     }
 
     public void switchShipPlacementDirection() {
@@ -166,7 +165,6 @@ public class BattleshipClient {
         gameWindow.updateShipPlacementDirection(shipPlacementHorizontal);
     }
 
-    //borde heta markSquaresOnBoard och använda boolean om vilken board det blir...
     private void placeShipOnMyBoard(int startRow, int startColumn, int noOfSquares, ShipPlacementOrientation orientation) {
 
 

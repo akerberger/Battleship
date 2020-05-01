@@ -1,6 +1,6 @@
 package gamecomponents;
 
-import gamecomponents.markers.Marker;
+
 import gui.gamewindow.PlayingBoard;
 
 import javax.swing.*;
@@ -51,20 +51,6 @@ public class Square extends JPanel {
         isShotShip = hit;
 
         this.icon=icon;
-
-//        if(board.isMyBoard()){
-//            if (hit) {
-//                setBackground(Color.RED);
-//            }else{
-//                setBackground(Color.BLUE);
-//            }
-//        }else{
-//            if (hit) {
-//                setBackground(Color.RED);
-//            }else{
-//                setBackground(Color.BLUE);
-//            }
-//        }
 
     repaint();
     }

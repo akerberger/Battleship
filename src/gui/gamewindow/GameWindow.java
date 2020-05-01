@@ -13,10 +13,6 @@ public class GameWindow extends JFrame {
     private static final int WINDOW_WIDTH = 500;
     private static final int WINDOW_HEIGHT = 700;
 
-    public static final double PLAYING_BOARD_SIZE = WINDOW_WIDTH * 0.65;
-
-//    private final BattleshipServer server;
-
     private final BattleshipClient client;
 
     private final SidePanel SIDE_PANEL = new SidePanel();
@@ -24,7 +20,7 @@ public class GameWindow extends JFrame {
     private final PlayingBoard own = new PlayingBoard(this, true);
     private final PlayingBoard opponents = new PlayingBoard(this, false);
 
-    //    public GameWindow(BattleshipServer server) {
+
     public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
         super((isHosting ? "Hosting game at " : "Connected to game at ") +
                 hostName + ", through port " + port);
@@ -45,9 +41,6 @@ public class GameWindow extends JFrame {
     private void setUpWindowComponents() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-//
-//        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
-//        own.setPreferredSize(new Dimension((int) PLAYING_BOARD_SIZE, (int) PLAYING_BOARD_SIZE));
 
         panel.add(opponents, BorderLayout.NORTH);
         panel.add(own, BorderLayout.SOUTH);
@@ -61,39 +54,28 @@ public class GameWindow extends JFrame {
     }
 
 
-    //coordinates[0] = x
-    //coordinates[1] = y
-    public void receiveClick(String[] coordinates) {
+    public void gameOver(boolean isWin) {
+        String gameOverText = isWin ? "You win!" : "You loose!";
 
-        SIDE_PANEL.setLabelText("mottaget: " + coordinates[0] + " " + coordinates[1]);
-    }
+        SIDE_PANEL.gameOver(gameOverText);
 
-    public void setSidePanelText(String text) {
-        SIDE_PANEL.setLabelText(text);
-    }
-
-    public void gameOver(boolean isWin){
-        if(isWin){
-            SIDE_PANEL.setLabelText("YOU WIN!");
-        }else{
-            SIDE_PANEL.setLabelText("YOU LOOSE!");
-        }
+        JOptionPane.showMessageDialog(this, "Game over! " + gameOverText);
     }
 
 
     public void markShot(int row, int column, boolean isMyClick, boolean isHit) {
 
         if (isMyClick) {
-            if(isHit){
+            if (isHit) {
                 opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redcross.png"));
-            }else{
+            } else {
                 opponents.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluecross.png"));
             }
 
         } else {
-            if(isHit){
+            if (isHit) {
                 own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/redbackground.png"));
-            }else{
+            } else {
 
                 own.markShot(row, column, isHit, new ImageIcon("/Users/Erik/IdeaProjects/Battleships/src/resources/bluebackground.png"));
             }
@@ -101,14 +83,14 @@ public class GameWindow extends JFrame {
         }
     }
 
-    public void onOpponentDisconnect(){
+    public void onOpponentDisconnect() {
         own.removeSquareListeners();
         opponents.removeSquareListeners();
-        JOptionPane.showMessageDialog(this,"Opponent disconnected!");
+        JOptionPane.showMessageDialog(this, "Opponent disconnected!");
     }
 
-    public void socketTimedOut(){
-        JOptionPane.showMessageDialog(this,"You have been inactive too long! Restart program to start new game!");
+    public void socketTimedOut() {
+        JOptionPane.showMessageDialog(this, "You have been inactive too long! Restart program to start new game!");
     }
 
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
@@ -147,15 +129,27 @@ public class GameWindow extends JFrame {
 
     }
 
+    private void removeShipPlacementListener(){
+        own.requestFocus();
+        own.getActionMap().remove("turnShip");
+    }
+
     public void updateShipPlacementDirection(boolean horizontal) {
         SIDE_PANEL.setShipDirectionLabelText("Ship direction: " + (horizontal ? "horizontal" : "vertical"));
     }
 
-    public void gamePhase(boolean iGoFirst) {
-        SIDE_PANEL.gamePhase();
+    public void setNewTurnInfo(boolean wasMyTurn){
 
+//            SIDE_PANEL.setLabelText("GAME PHASE!\n"+(wasMyTurn ? "Opponents turn... ": "My turn!"));
+            SIDE_PANEL.gameInstructionTextForNewTurn(wasMyTurn);
+    }
+
+    public void gamePhase(boolean iGoFirst) {
+        SIDE_PANEL.gamePhase(iGoFirst);
+        removeShipPlacementListener();
         if (iGoFirst) {
             opponents.addSquareListeners();
+
         }
     }
 
@@ -164,7 +158,7 @@ public class GameWindow extends JFrame {
 
         own.placeShipOnMyBoard(startRow, startColumn, shipSize, orientation);
 
-        SIDE_PANEL.setLabelText("Opponent placing ship...");
+
     }
 
     public void addMouseListeners(boolean toOwnBoard) {
@@ -177,33 +171,6 @@ public class GameWindow extends JFrame {
     }
 
 
-    //denna är onödig, markera bara samma sak på "mitt" bräde som på motståndarens,
-    //det kommer bli samma koordinater
-//	private int getColumnFromYCoordinate(int x) {
-//
-//		if (x > 0 && x <= PLAYING_BOARD_SIZE / 10) {
-//			return 1;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 && x <= PLAYING_BOARD_SIZE / 10 * 2) {
-//			return 2;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 2 && x <= PLAYING_BOARD_SIZE / 10 * 3) {
-//			return 3;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 3 && x <= PLAYING_BOARD_SIZE / 10 * 4) {
-//			return 4;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 4 && x <= PLAYING_BOARD_SIZE / 10 * 5) {
-//			return 5;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 5 && x <= PLAYING_BOARD_SIZE / 10 * 6) {
-//			return 6;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 6 && x <= PLAYING_BOARD_SIZE / 10 * 7) {
-//			return 7;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 7 && x <= PLAYING_BOARD_SIZE / 10 * 8) {
-//			return 8;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 8 && x <= PLAYING_BOARD_SIZE / 10 * 9) {
-//			return 9;
-//		} else if (x > PLAYING_BOARD_SIZE / 10 * 9 && x <= PLAYING_BOARD_SIZE / 10 * 10) {
-//			return 10;
-//		}
-//
-//		return -1;
-//	}
+
 
 }

@@ -19,7 +19,6 @@ public class ClientReceiver extends Thread {
     ClientReceiver(BattleshipClient client, Socket socket) {
         this.client = client;
         this.socket = socket;
-
     }
 
     @Override
@@ -39,16 +38,11 @@ public class ClientReceiver extends Thread {
             }
 
         } catch (SocketTimeoutException e) {
-            System.err.println("You timed out ");
-            e.printStackTrace();
             client.socketTimedOut();
-
         } catch (IOException e) {
             e.printStackTrace();
-
         } catch (InterruptedException e) {
             e.printStackTrace();
-
         }
     }
 }
