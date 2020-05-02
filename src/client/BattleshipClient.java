@@ -10,11 +10,12 @@ import java.net.Socket;
 import java.util.Arrays;
 
 /**
- * Represents a client playing the game. Even the player hosting the game is represented as a BattleshipClient object.
- *
+ * Represents a user playing the game.
+ * <p>
  * Serves as the link between the GameWindow and the BattleshipServer as it passes along events
  * from the GameWindow to the BattleshipServer and receives messages from the BattleshipServer.
- * This communication happens through the ClientSender/ClientReceiver objects
+ * This communication happens through the ClientSender/ClientReceiver objects, over a Socket that is set up
+ * in the constructor of this class.
  */
 public class BattleshipClient {
 
@@ -35,10 +36,12 @@ public class BattleshipClient {
     private int id = -1;
 
     /**
+     * Makes a call to the setUpSocket-method and passes along the resulting Socket object
+     * to a ClientSender object and a ClientRecevier object.
      *
      * @param host The address to connect the BattleShipClient to
      * @param port The port to connect the BattleShipClient to
-     * @throws IOException If an exception is thrown fron the setUpSocket-method
+     * @throws IOException If an exception is thrown from the setUpSocket-method
      */
     public BattleshipClient(InetAddress host, int port) throws IOException {
 
@@ -49,16 +52,21 @@ public class BattleshipClient {
 
     }
 
+    private class GameMessageHandler{
+
+    }
+
     // connects the BattleShipClient to it's Gamewindow object
     public void setGameWindow(GameWindow gameWindow) {
         this.gameWindow = gameWindow;
     }
 
     /**
-     * Sets up the Socket connection to the specified host.
+     * Sets up the Socket connection which is used for communication with the BattleshipServer
+     *
      * @param host The InetAddress to bind the socket to.
      * @param port The port number to bind the socket to.
-     * @return The successfully setup socket.
+     * @return The successfully set up socket.
      * @throws IOException If the socket setup fails.
      */
     private Socket setUpSocket(InetAddress host, int port) throws IOException {
@@ -71,93 +79,124 @@ public class BattleshipClient {
     }
 
     /**
-     *
-     * @param msg
+     * If a time out has occurred for the Socket of this BattleshipClient.
+     * <p>
+     * Reports this to the BattleshipServer through the ClientSender
+     * and notifies the gameWindow of this BattleshipClient.
      */
-    void handleReceivedMessage(String msg) {
-        String[] tokens = msg.split(" ");
-
-        if (tokens[1].equals("setID")) {
-            if (id != -1) {
-                throw new IllegalArgumentException(" ID already set in BattleshipClient");
-            }
-            id = Integer.parseInt(tokens[2]);
-        } else if (tokens[1].equals("opponentDisconnect")) {
-
-            gameWindow.onOpponentDisconnect();
-
-        } else {
-            handleGameMessage(tokens);
-        }
-
-    }
-
     public void socketTimedOut() {
         out.reportSocketTimedOut(id);
         gameWindow.socketTimedOut();
 
     }
 
-    private void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
+    void onOpponentDisconnect() {
+        gameWindow.onOpponentDisconnect();
+    }
+
+    /**
+     * Handles messages regarding the game session from the BattleshipServer in the form of msgTokens.
+     * <p>
+     * The first two tokens always represents the game state (msgTokens[1]) and the message type (msgTokens[2]).
+     * The tokens following the first two varies depending on the message type but usually contains information
+     * about a click that a user has made.
+     *
+     * @param msgTokens . The current game state
+     * @throws IllegalArgumentException
+     */
+    void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
 
         String gameState = msgTokens[0];
 
-        String messageType = msgTokens[1];
+        String msgType = msgTokens[1];
 
-        switch (messageType) {
+        switch (msgType) {
             case "newShipPlacementTurn":
-                gameWindow.addMouseListeners(true);
-                
+                actionsForNewShipPlacementTurn();
                 break;
             case "placeShip":
-                ShipPlacementOrientation orientation =
-                        (msgTokens[5].equals("h") ? ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
-                placeShipOnMyBoard(Integer.parseInt(msgTokens[2]),
-                        Integer.parseInt(msgTokens[3]), Integer.parseInt(msgTokens[4]), orientation);
+                actionsForPlaceShip(msgTokens);
                 break;
             case "okMove":
-                int senderId = Integer.parseInt(msgTokens[2]);
-                int row = Integer.parseInt(msgTokens[3]);
-                int column = Integer.parseInt(msgTokens[4]);
-                gameWindow.markShot(row, column, senderId == id, msgTokens[5].equals("hit"));
-                gameWindow.setNewTurnInfo(senderId == id);
+                actionsForOkMove(msgTokens);
                 break;
             case "sinkShip":
-                int idOfClicker = Integer.parseInt(msgTokens[2]);
-                int shipSize = Integer.parseInt(msgTokens[5]);
-                int tokenIndexOffset = 6;
-                for (int i = 0; i < shipSize; i++) {
-                    gameWindow.markSunkenShipSquare(Integer.parseInt(msgTokens[tokenIndexOffset]), Integer.parseInt(msgTokens[tokenIndexOffset + 1]), idOfClicker == id);
-                    tokenIndexOffset += 2;
-                }
-                gameWindow.setNewTurnInfo(idOfClicker == id);
+                actionsForSinkShip(msgTokens);
                 break;
             case "notOkMove":
-                //  beroende på vilken spelfas det är, addera lyssnare till egna brädet eller motståndarens
-
-                gameWindow.addMouseListeners(gameState.equals("SETUP_PHASE"));
+                actionsForNotOkMove(gameState);
                 break;
-
             case "newTurn":
-                gameWindow.addMouseListeners(false);
+                actionsForNewTurn();
                 break;
             case "changePhase":
-                String newPhase = msgTokens[2];
-                if (newPhase.equals("setupPhase")) {
-                    gameWindow.setupPhase();
-
-                } else if (newPhase.equals("gamePhase")) {
-                    int starterPlayerId = Integer.parseInt(msgTokens[3]);
-                    gameWindow.gamePhase(id == starterPlayerId);
-                }
+                actionsForChangePhase(msgTokens);
                 break;
             case "setGameOver":
-
-                int winningPlayerId = Integer.parseInt(msgTokens[2]);
-                gameOver(winningPlayerId);
+               actionsForGameOver(msgTokens);
                 break;
 
         }
+    }
+
+    private void actionsForGameOver(String [] msgTokens){
+        int winningPlayerId = Integer.parseInt(msgTokens[2]);
+        gameOver(winningPlayerId);
+    }
+
+    private void actionsForChangePhase(String [] msgTokens){
+        String newPhase = msgTokens[2];
+        if (newPhase.equals("setupPhase")) {
+            gameWindow.setupPhase();
+
+        } else if (newPhase.equals("gamePhase")) {
+            int starterPlayerId = Integer.parseInt(msgTokens[3]);
+            gameWindow.gamePhase(id == starterPlayerId);
+        }
+    }
+
+    private void actionsForNewTurn() {
+        gameWindow.addMouseListeners(false);
+    }
+
+    private void actionsForNewShipPlacementTurn() {
+        gameWindow.addMouseListeners(true);
+    }
+
+    private void actionsForNotOkMove(String gameState) {
+        gameWindow.addMouseListeners(gameState.equals("SETUP_PHASE"));
+    }
+
+    private void actionsForPlaceShip(String[] msgTokens) {
+        ShipPlacementOrientation orientation =
+                (msgTokens[5].equals("h") ? ShipPlacementOrientation.HORIZONTAL : ShipPlacementOrientation.VERTICAL);
+
+        placeShipOnMyBoard(Integer.parseInt(msgTokens[2]),
+                Integer.parseInt(msgTokens[3]), Integer.parseInt(msgTokens[4]), orientation);
+    }
+
+    private void actionsForSinkShip(String[] msgTokens) {
+        int idOfClicker = Integer.parseInt(msgTokens[2]);
+        int shipSize = Integer.parseInt(msgTokens[5]);
+        int tokenIndexOffset = 6;
+
+        for (int i = 0; i < shipSize; i++) {
+            gameWindow.markSunkenShipSquare(Integer.parseInt(msgTokens[tokenIndexOffset]),
+                    Integer.parseInt(msgTokens[tokenIndexOffset + 1]),
+                    idOfClicker == id);
+            tokenIndexOffset += 2;
+        }
+
+        gameWindow.setNewTurnInfo(idOfClicker == id);
+    }
+
+    private void actionsForOkMove(String[] msgTokens) {
+        int senderId = Integer.parseInt(msgTokens[2]);
+        int row = Integer.parseInt(msgTokens[3]);
+        int column = Integer.parseInt(msgTokens[4]);
+
+        gameWindow.markShot(row, column, senderId == id, msgTokens[5].equals("hit"));
+        gameWindow.setNewTurnInfo(senderId == id);
     }
 
     private void gameOver(int winningPlayerId) {
@@ -166,6 +205,14 @@ public class BattleshipClient {
 
     public void sendClick(int row, int column) {
         out.sendClick(id, row, column, shipPlacementHorizontal);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void switchShipPlacementDirection() {

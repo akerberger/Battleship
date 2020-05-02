@@ -29,10 +29,10 @@ public class ClientReceiver extends Thread {
             while (true) {
                 String msg = in.readLine();
                 if (msg != null) {
-                    client.handleReceivedMessage(msg);
+                    handleReceivedMessage(msg);
                     Thread.sleep(20);
                 } else {
-                    client.handleReceivedMessage(""+" "+"opponentDisconnect");
+                    client.onOpponentDisconnect();
                     break;
                 }
             }
@@ -44,5 +44,23 @@ public class ClientReceiver extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleReceivedMessage(String msg) {
+        String[] tokens = msg.split(" ");
+
+        String command = tokens[1];
+
+        if (command.equals("setID")) {
+            if (client.getId() != -1) {
+                throw new IllegalArgumentException(" ID already set in BattleshipClient");
+            }
+            client.setId(Integer.parseInt(tokens[2]));
+        }else if(command.equals("opponentDisconnect")){
+            client.onOpponentDisconnect();
+        } else {
+            client.handleGameMessage(tokens);
+        }
+
     }
 }
