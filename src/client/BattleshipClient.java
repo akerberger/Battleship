@@ -2,56 +2,78 @@ package client;
 
 import gamecomponents.ShipPlacementOrientation;
 import gui.gamewindow.GameWindow;
+import server.BattleshipServer;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 
-
+/**
+ * Represents a client playing the game. Even the player hosting the game is represented as a BattleshipClient object.
+ *
+ * Serves as the link between the GameWindow and the BattleshipServer as it passes along events
+ * from the GameWindow to the BattleshipServer and receives messages from the BattleshipServer.
+ * This communication happens through the ClientSender/ClientReceiver objects
+ */
 public class BattleshipClient {
-
-//    private String HOST;
-
-
-    private InetAddress HOST;
-    private int PORT;
 
     private ClientSender out;
 
     private GameWindow gameWindow;
 
+    /*
+      Indicates which direction (horizontal or vertical) a ship will be placed on the own board
+      during the pre-game setup phase
+     */
     private boolean shipPlacementHorizontal = true;
 
+    /*
+      Will be set to a valid (positive) value through a message from the BattleshipServer
+      if the BattleshipClient's connection to the BattleshipServer is successful
+     */
     private int id = -1;
 
+    /**
+     *
+     * @param host The address to connect the BattleShipClient to
+     * @param port The port to connect the BattleShipClient to
+     * @throws IOException If an exception is thrown fron the setUpSocket-method
+     */
     public BattleshipClient(InetAddress host, int port) throws IOException {
-        HOST = host;
-        PORT = port;
 
-        Socket socket = setUpSocket();
+        Socket socket = setUpSocket(host, port);
         out = new ClientSender(socket);
 
         new ClientReceiver(this, socket).start();
 
     }
 
+    // connects the BattleShipClient to it's Gamewindow object
     public void setGameWindow(GameWindow gameWindow) {
         this.gameWindow = gameWindow;
     }
 
-    private Socket setUpSocket() throws IOException {
+    /**
+     * Sets up the Socket connection to the specified host.
+     * @param host The InetAddress to bind the socket to.
+     * @param port The port number to bind the socket to.
+     * @return The successfully setup socket.
+     * @throws IOException If the socket setup fails.
+     */
+    private Socket setUpSocket(InetAddress host, int port) throws IOException {
 
-        Socket socket = new Socket(HOST, PORT);
-
-
-
+        Socket socket = new Socket(host, port);
         //5 min
         socket.setSoTimeout(300 * 1000);
 
         return socket;
     }
 
+    /**
+     *
+     * @param msg
+     */
     void handleReceivedMessage(String msg) {
         String[] tokens = msg.split(" ");
 
@@ -78,8 +100,6 @@ public class BattleshipClient {
 
     private void handleGameMessage(String[] msgTokens) throws IllegalArgumentException {
 
-        System.out.println("BATTLESHIPCLIENT MED ID: " + id + " FÅR MEDDELANDE: " + Arrays.toString(msgTokens));
-
         String gameState = msgTokens[0];
 
         String messageType = msgTokens[1];
@@ -87,8 +107,7 @@ public class BattleshipClient {
         switch (messageType) {
             case "newShipPlacementTurn":
                 gameWindow.addMouseListeners(true);
-                System.out.println("TAR NY PLACERINGVÄNDA");
-
+                
                 break;
             case "placeShip":
                 ShipPlacementOrientation orientation =
@@ -125,12 +144,10 @@ public class BattleshipClient {
             case "changePhase":
                 String newPhase = msgTokens[2];
                 if (newPhase.equals("setupPhase")) {
-//                    GameController.setGameState(GameState.SETUP_PHASE);
                     gameWindow.setupPhase();
 
                 } else if (newPhase.equals("gamePhase")) {
                     int starterPlayerId = Integer.parseInt(msgTokens[3]);
-//                    GameController.setGameState(GameState.GAME_PHASE);
                     gameWindow.gamePhase(id == starterPlayerId);
                 }
                 break;

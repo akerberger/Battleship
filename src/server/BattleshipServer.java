@@ -11,17 +11,12 @@ import java.util.List;
 //Only used if the player chooses "Create server"
 public class BattleshipServer extends Thread {
 
-
-
     private final int PORT;
-
-//    private String hostAddress;
 
     private InetAddress hostAddress;
 
     private MessageHandler messageHandler = new MessageHandler(this);
 
-    //Gör detta till Map med id som nyckel och tråd som värde istället
     private final List<ClientThread> CLIENT_THREADS = new LinkedList<>();
 
 
@@ -30,7 +25,6 @@ public class BattleshipServer extends Thread {
     public BattleshipServer(int port) throws IOException {
         PORT = port;
         serverSocket = new ServerSocket(PORT);
-//        hostAddress = serverSocket.getInetAddress().getLocalHost().getHostAddress();
         hostAddress=serverSocket.getInetAddress();
 
     }
