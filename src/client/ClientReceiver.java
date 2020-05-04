@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 /**
- * Helper class to the BattleshipClient. This class handles messages received from the BattleshipServer
+ * Helper class to a BattleshipClient instance. This class handles messages received from the BattleshipServer
  * addressed to the BattleshipClient object related to this class.
  *
  * In the run-method, an object of this class listens for, and handles, incoming messages sent over

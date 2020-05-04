@@ -244,7 +244,7 @@ public class BattleshipClient {
      * and notifies the gameWindow of this BattleshipClient.
      */
     public void socketTimedOut() {
-        out.reportSocketTimedOut(id);
+        out.reportSocketTimedOut();
         gameWindow.socketTimedOut();
 
     }

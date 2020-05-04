@@ -15,7 +15,7 @@ public class Square extends JPanel {
     private final int column;
     private final PlayingBoard board;
     private boolean isShot = false;
-    private boolean isShotShip = false;
+    //    private boolean isShotShip = false;
     private boolean hasSunkenShip = false;
 
     private ImageIcon icon = null;
@@ -35,32 +35,29 @@ public class Square extends JPanel {
 
     private class SquareListener extends MouseAdapter {
 
-        //kanske lägga in en funktion så att om man klickar på en markerad ruta får man nån info, istf att
-        // sendClick skickas iväg...
         @Override
         public void mouseClicked(MouseEvent e) {
-            if(!isShot){
+            if (!isShot) {
                 board.removeSquareListeners();
                 board.sendClick(row, column);
             }
         }
     }
 
-    public void markShot(boolean hit, ImageIcon icon) {
-        isShot=true;
-        isShotShip = hit;
+    public void markShot(ImageIcon icon) {
+        isShot = true;
 
-        this.icon=icon;
+        this.icon = icon;
 
-    repaint();
+        repaint();
     }
 
 
     //Sätt döskalle på sänkt ruta
-    public void markSunkenShip(ImageIcon icon){
-        isShot=true;
+    public void markSunkenShip(ImageIcon icon) {
+        isShot = true;
 
-        hasSunkenShip=true;
+        hasSunkenShip = true;
 
         this.icon = icon;
 
@@ -79,18 +76,19 @@ public class Square extends JPanel {
     }
 
 
-    public void setIsShot(){
+    public void setIsShot() {
         isShot = true;
     }
-    public int getRow(){
+
+    public int getRow() {
         return row;
     }
 
-    public int getColumn(){
+    public int getColumn() {
         return column;
     }
 
-    public boolean isShot(){
+    public boolean isShot() {
         return isShot;
     }
 
@@ -100,36 +98,35 @@ public class Square extends JPanel {
     }
 
     @Override
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if(hasSunkenShip) {
+        if (hasSunkenShip) {
             setBackground(Color.RED);
         }
 
-        if(icon != null){
-            g.drawImage(icon.getImage(), 5,5,20,20,this);
+        if (icon != null) {
+            g.drawImage(icon.getImage(), 5, 5, 20, 20, this);
         }
     }
 
 
     //utöka denna definition. Samt överskugga hashcode!
     @Override
-    public boolean equals(Object other){
+    public boolean equals(Object other) {
 
-        if(other instanceof Square){
+        if (other instanceof Square) {
             Square otherSquare = (Square) other;
-            return(row == otherSquare.getRow() && column==otherSquare.column);
+            return (row == otherSquare.getRow() && column == otherSquare.column);
         }
 
         return false;
     }
 
 
-
     @Override
-    public String toString(){
-        return row+" "+column+" "+isShot;
+    public String toString() {
+        return row + " " + column + " " + isShot;
     }
 
 
