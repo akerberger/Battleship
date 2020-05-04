@@ -280,11 +280,5 @@ public class GameController {
         SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
     }
 
-//    private enum GameState {
-//        CONNECTION_PHASE,
-//        SETUP_PHASE,
-//        GAME_PHASE,
-//        GAME_OVER
-//    }
 
 }
