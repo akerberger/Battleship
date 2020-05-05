@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
+
 import java.net.InetAddress;
 
 public class GameWindow extends JFrame {
@@ -22,14 +22,9 @@ public class GameWindow extends JFrame {
     private final PlayingBoard own = new PlayingBoard(this, true);
     private final PlayingBoard opponents = new PlayingBoard(this, false);
 
-    private final ImageIcon HIT_ON_OPPONENTS_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("redcross.png"));
-    private final ImageIcon MISS_ON_OPPONENTS_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluecross.png"));
-    private final ImageIcon HIT_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("redbackground.png"));
-    private final ImageIcon MISS_ON_MY_BOARD_ICON= new ImageIcon(getClass().getClassLoader().getResource("bluebackground.png"));
-    private final ImageIcon SUNKEN_SHIP_SQUARE_ICON = new ImageIcon(getClass().getClassLoader().getResource("skull.png"));
+    private final SquareIconHandler SQUARE_ICON_HANDLER = new SquareIconHandler();
 
-//    public GameWindow(BattleshipClient client, String hostName, int port, boolean isHosting) {
-public GameWindow(BattleshipClient client, InetAddress hostName, int port, boolean isHosting) {
+    public GameWindow(BattleshipClient client, InetAddress hostName, int port, boolean isHosting) {
         super((isHosting ? "Hosting game at " : "Connected to game at ") +
                 hostName.getHostAddress() + ", through port " + port);
 
@@ -44,6 +39,33 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
 
         setVisible(true);
 
+    }
+
+    private class SquareIconHandler {
+
+        private final ImageIcon HIT_ON_OPPONENTS_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("redcross.png"));
+        private final ImageIcon MISS_ON_OPPONENTS_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("bluecross.png"));
+        private final ImageIcon HIT_ON_MY_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("redbackground.png"));
+        private final ImageIcon MISS_ON_MY_BOARD_ICON = new ImageIcon(getClass().getClassLoader().getResource("bluebackground.png"));
+        private final ImageIcon SUNKEN_SHIP_SQUARE_ICON = new ImageIcon(getClass().getClassLoader().getResource("skull.png"));
+
+        ImageIcon getIcon(String iconType) {
+
+            switch (iconType) {
+                case "HIT_ON_OPPONENTS_BOARD_ICON":
+                    return HIT_ON_OPPONENTS_BOARD_ICON;
+                case "MISS_ON_OPPONENTS_BOARD_ICON":
+                    return MISS_ON_OPPONENTS_BOARD_ICON;
+                case "HIT_ON_MY_BOARD_ICON":
+                    return HIT_ON_MY_BOARD_ICON;
+                case "MISS_ON_MY_BOARD_ICON":
+                    return MISS_ON_MY_BOARD_ICON;
+                case "SUNKEN_SHIP_SQUARE_ICON":
+                    return SUNKEN_SHIP_SQUARE_ICON;
+
+            }
+            return null;
+        }
     }
 
     private void setUpWindowComponents() {
@@ -75,17 +97,17 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
 
         if (isMyClick) {
             if (isHit) {
-                opponents.markShot(row, column, isHit, HIT_ON_OPPONENTS_BOARD_ICON);
+                opponents.markShot(row, column, SQUARE_ICON_HANDLER.getIcon("HIT_ON_OPPONENTS_BOARD_ICON"));
             } else {
-                opponents.markShot(row, column, isHit, MISS_ON_OPPONENTS_BOARD_ICON);
+                opponents.markShot(row, column, SQUARE_ICON_HANDLER.getIcon("MISS_ON_OPPONENTS_BOARD_ICON"));
             }
 
         } else {
             if (isHit) {
-                own.markShot(row, column, isHit, HIT_ON_MY_BOARD_ICON);
+                own.markShot(row, column, SQUARE_ICON_HANDLER.getIcon("HIT_ON_MY_BOARD_ICON"));
             } else {
 
-                own.markShot(row, column, isHit, MISS_ON_MY_BOARD_ICON);
+                own.markShot(row, column, SQUARE_ICON_HANDLER.getIcon("MISS_ON_MY_BOARD_ICON"));
             }
 
         }
@@ -103,9 +125,9 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
 
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
         if (onOpponentsBoard) {
-            opponents.markSunkenShipSquare(row, column, SUNKEN_SHIP_SQUARE_ICON);
+            opponents.markSunkenShipSquare(row, column, SQUARE_ICON_HANDLER.getIcon("SUNKEN_SHIP_SQUARE_ICON"));
         } else {
-            own.markSunkenShipSquare(row, column, SUNKEN_SHIP_SQUARE_ICON);
+            own.markSunkenShipSquare(row, column, SQUARE_ICON_HANDLER.getIcon("SUNKEN_SHIP_SQUARE_ICON"));
         }
     }
 
@@ -137,7 +159,7 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
 
     }
 
-    private void removeShipPlacementListener(){
+    private void removeShipPlacementListener() {
         own.requestFocus();
         own.getActionMap().remove("turnShip");
     }
@@ -146,10 +168,10 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
         SIDE_PANEL.setShipDirectionLabelText("Ship direction: " + (horizontal ? "horizontal" : "vertical"));
     }
 
-    public void setNewTurnInfo(boolean wasMyTurn){
+    public void setNewTurnInfo(boolean wasMyTurn) {
 
 //            SIDE_PANEL.setLabelText("GAME PHASE!\n"+(wasMyTurn ? "Opponents turn... ": "My turn!"));
-            SIDE_PANEL.gameInstructionTextForNewTurn(wasMyTurn);
+        SIDE_PANEL.gameInstructionTextForNewTurn(wasMyTurn);
     }
 
     public void gamePhase(boolean iGoFirst) {
@@ -177,8 +199,6 @@ public GameWindow(BattleshipClient client, InetAddress hostName, int port, boole
             opponents.addSquareListeners();
         }
     }
-
-
 
 
 }

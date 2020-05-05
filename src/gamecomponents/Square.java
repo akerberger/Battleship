@@ -4,56 +4,77 @@ package gamecomponents;
 import gui.gamewindow.PlayingBoard;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * Represents a square on a PlayingBoard.
+ */
 public class Square extends JPanel {
 
-    private final int row;
-    private final int column;
-    private final PlayingBoard board;
+    private final int ROW;
+    private final int COLUMN;
+    private final PlayingBoard BOARD;
     private boolean isShot = false;
-    //    private boolean isShotShip = false;
     private boolean hasSunkenShip = false;
 
     private ImageIcon icon = null;
 
-    private SquareListener listener = new SquareListener();
+    private final SquareListener LISTENER = new SquareListener();
 
+    /**
+     *
+     * @param row The row of the PlayingBoard that this object is located on
+     * @param column The column of the PlayingBoard that this object is located on
+     * @param board The PlayingBoard where this object is located on
+     */
     public Square(int row, int column, PlayingBoard board) {
-        this.row = row;
-        this.column = column;
-        this.board = board;
+        this.ROW = row;
+        this.COLUMN = column;
+        this.BOARD = board;
 
-        Border raisedBevele = BorderFactory.createRaisedBevelBorder();
-        setBorder(raisedBevele);
+        setBorder(BorderFactory.createRaisedBevelBorder());
         setPreferredSize(new Dimension(30, 30));
 
     }
 
+    /**
+     * Listens for click events made on this Square object
+     */
     private class SquareListener extends MouseAdapter {
 
+        /**
+         * If a click occurs on this Square and it's not already marked as shot, the click will
+         * be reported to the PlayingBoard.
+         * @param e not used
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             if (!isShot) {
-                board.removeSquareListeners();
-                board.sendClick(row, column);
+                BOARD.clickOccured(ROW,COLUMN);
             }
         }
     }
 
+    /**
+     * Actions to take for marking this Square object as being shot. Triggers repaint() of this
+     * Square object to make the icon visible.
+     * @param icon The ImageIcon that will be displayed on this Square object.
+     */
     public void markShot(ImageIcon icon) {
         isShot = true;
-
         this.icon = icon;
 
         repaint();
     }
 
 
-    //Sätt döskalle på sänkt ruta
+    /**
+     * Actions to take for marking this Square object as holding part of a sunken ship. Triggers repaint()
+     * of this Square object to make the icon visible.
+     * @param icon The ImageIcon that will be displayed on this Square object.
+     */
     public void markSunkenShip(ImageIcon icon) {
         isShot = true;
 
@@ -68,11 +89,11 @@ public class Square extends JPanel {
 
 
     public void addMouseListener() {
-        addMouseListener(listener);
+        addMouseListener(LISTENER);
     }
 
     public void removeMouseListener() {
-        removeMouseListener(listener);
+        removeMouseListener(LISTENER);
     }
 
 
@@ -81,21 +102,25 @@ public class Square extends JPanel {
     }
 
     public int getRow() {
-        return row;
+        return ROW;
     }
 
     public int getColumn() {
-        return column;
+        return COLUMN;
     }
 
     public boolean isShot() {
         return isShot;
     }
 
+    /**
+     * Marks this Square object as holding part of a non-sunken, non-hit ship.
+     */
     public void markPartOfShip() {
         setBackground(Color.BLACK);
         repaint();
     }
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -117,16 +142,21 @@ public class Square extends JPanel {
 
         if (other instanceof Square) {
             Square otherSquare = (Square) other;
-            return (row == otherSquare.getRow() && column == otherSquare.column);
+            return (ROW == otherSquare.getRow() && COLUMN == otherSquare.COLUMN);
         }
 
         return false;
     }
 
+    @Override
+    public int hashCode(){
+        return ROW*31*COLUMN*31;
+    }
+
 
     @Override
     public String toString() {
-        return row + " " + column + " " + isShot;
+        return ROW + " " + COLUMN + " " + isShot;
     }
 
 
