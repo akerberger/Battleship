@@ -2,7 +2,7 @@ package main;
 
 import gameinitiation.GameInitiationHandler;
 import gui.InitialConnectionWindow;
-//TODO: Hashcode/equals i Square
+
 /**
  * Entry point for the Battleships program
  */

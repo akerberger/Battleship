@@ -8,27 +8,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-//Only used if the player chooses "Create server"
+/**
+ * Handles the hosting of a battleship game session by setting up the serverSocket object and listening for
+ * two clients to connect. After a client connection is detected the client will be represented by an instance
+ * of the nested class ClientThread.
+ *
+ * During game play the BattleshipServer listens for game events from the CLIENT_THREADS. The events are passed on
+ * to a GameController, through the messageHandler, for handling/validation. When the GameController has handled the
+ * event, it passes any new game information on to the messageHandler back to this BattleshipServer
+ * which passes along the information to the relevant clients.
+ */
 public class BattleshipServer extends Thread {
 
-    private final int PORT;
+    private final int PORT; //the port where the game is hosted
 
-    private InetAddress hostAddress;
+    private InetAddress hostAddress; //the host address where the game is hosted
 
     private MessageHandler messageHandler = new MessageHandler(this);
 
-    private final List<ClientThread> CLIENT_THREADS = new LinkedList<>();
+    private final List<ClientThread> CLIENT_THREADS = new LinkedList<>(); //The connected clients represented as ClientThread objects
 
-
-    private ServerSocket serverSocket;
+    private ServerSocket serverSocket; //the socket where the game is hosted by this BattleshipServer
 
     public BattleshipServer(int port) throws IOException {
         PORT = port;
         serverSocket = new ServerSocket(PORT);
         hostAddress=serverSocket.getInetAddress();
-
     }
 
+    /**
+     *
+     */
     private class ClientThread extends Thread {
         Socket connection;
         BufferedReader in;
@@ -60,7 +70,6 @@ public class BattleshipServer extends Thread {
                     Thread.sleep(20);
                 }
 
-//				out.close();
                 in.close();
                 connection.close();
 
@@ -70,9 +79,8 @@ public class BattleshipServer extends Thread {
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
-
             actionsForKillThread(threadID);
-
+            out.close();
         }
 
         public int getThreadID() {
@@ -121,13 +129,9 @@ public class BattleshipServer extends Thread {
     }
 
     private void actionsForClientConnected(Socket clientConnection, int clientThreadId) {
-
-
         ClientThread clientThread = new ClientThread(clientConnection, clientThreadId);
         CLIENT_THREADS.add(clientThread);
         clientThread.start();
-
-
     }
 
     @Override
@@ -216,9 +220,6 @@ public class BattleshipServer extends Thread {
     }
 
 
-//    public String getHostAddress() {
-//        return hostAddress;
-//    }
 
     public InetAddress getHostAddress(){
         return hostAddress;

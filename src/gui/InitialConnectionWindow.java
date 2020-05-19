@@ -33,7 +33,7 @@ public class InitialConnectionWindow extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
 
-        JPanel panel = setUpWindowContent();
+        JPanel panel = setUpWindowContentPanel();
         add(panel);
 
         setVisible(true);
@@ -71,7 +71,7 @@ public class InitialConnectionWindow extends JFrame {
     }
 
 
-    private JPanel setUpWindowContent() {
+    private JPanel setUpWindowContentPanel() {
 
         JPanel buttonPanel = new JPanel();
 
@@ -80,6 +80,10 @@ public class InitialConnectionWindow extends JFrame {
         return buttonPanel;
     }
 
+    /**
+     * Creates and adds the two buttons, with listeners, handling the connection when clicked.
+     * @param buttonPanel A container panel for the two buttons
+     */
     private void addConnectionButtons(JPanel buttonPanel) {
 
         JButton connectToRemoteServerBtn = new JButton(JOIN_GAME_BTN_TXT);
