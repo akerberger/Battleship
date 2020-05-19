@@ -3,8 +3,12 @@ package gui.gamewindow;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Holds information labels:
+ *   northPanel
+ *       - 
+ */
 public class SidePanel extends JPanel {
-
 
     private NorthPanel northPanel = new NorthPanel();
     private SouthPanel southPanel= new SouthPanel();

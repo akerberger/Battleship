@@ -140,7 +140,6 @@ public class GameWindow extends JFrame {
     /**
      * Actions for marking a Square as being shot, either as a hit or a miss, on the own board or on the opponents board
      * depending on which player made the shot.
-     *
      * @param row      The row where the shot is to be marked on the PlayingBoard.
      * @param column   The column where the shot is to be marked on the PlayingBoards.
      * @param isMyShot True if the client of this GameWindow was the one that made the shot.
@@ -149,22 +148,18 @@ public class GameWindow extends JFrame {
     public void markShot(int row, int column, boolean isMyShot, boolean isHit) {
 
         if (isMyShot) {
-
             OPPONENTS_BOARD.markShot(row, column, SQUARE_ICON_HANDLER.getIcon(isHit ? "HIT_ON_OPPONENTS_BOARD_ICON" : "MISS_ON_OPPONENTS_BOARD_ICON"));
-
         } else {
-
             OWN_BOARD.markShot(row, column, SQUARE_ICON_HANDLER.getIcon(isHit ? "HIT_ON_MY_BOARD_ICON" : "MISS_ON_MY_BOARD_ICON"));
-
         }
     }
 
     /**
-     * Actions for marking a Square as containing part of a sunken ship.
-     *
-     * @param row
-     * @param column
-     * @param onOpponentsBoard
+     * Actions for marking a Square as containing part of a sunken ship, on the own board or on the opponents board
+     * depending on which player made the shot.
+     * @param row The row where the shot is to be marked on the PlayingBoard.
+     * @param column The column where the shot is to be marked on the PlayingBoard.
+     * @param onOpponentsBoard True if the shot is to be marked on the opponents board
      */
     public void markSunkenShipSquare(int row, int column, boolean onOpponentsBoard) {
         if (onOpponentsBoard) {
@@ -174,12 +169,21 @@ public class GameWindow extends JFrame {
         }
     }
 
+    /**
+     * Actions to perform when the game state has changed from connections phase to setup phase.
+     */
     public void setupPhase() {
         SIDE_PANEL.setupPhase();
         addShipPlacementListener();
         OWN_BOARD.addSquareListeners();
     }
 
+    /**
+     * Makes it possible to change the ship placement direction setting, horizontal or vertical, by clicking left or right key.
+     *
+     * When a player is placing a ship on his/her board during setup phase, the current ship placement orientation setting
+     * will dictate the ships placement on the board.
+     */
     private void addShipPlacementListener() {
 
         OWN_BOARD.requestFocus();
@@ -199,34 +203,54 @@ public class GameWindow extends JFrame {
 
     }
 
+    /**
+     * Removes the ability to change the ship placement direction setting, as made possible by addShipPlacementListener-method.
+     */
     private void removeShipPlacementListener() {
         OWN_BOARD.requestFocus();
         OWN_BOARD.getActionMap().remove("turnShip");
     }
 
-    public void updateShipPlacementDirection(boolean horizontal) {
+    public void updateShipPlacementDirectionLabel(boolean horizontal) {
         SIDE_PANEL.setShipDirectionLabelText("Ship direction: " + (horizontal ? "horizontal" : "vertical"));
     }
 
+    /**
+     * Calls the side panel to update it's turn label
+     * @param wasMyTurn True if the previous turn was the one of the BattleshipClient of this GameWindow
+     */
     public void setNewTurnInfo(boolean wasMyTurn) {
 
         SIDE_PANEL.gameInstructionTextForNewTurn(wasMyTurn);
     }
 
+    /**
+     * Actions to take when the game state changes to GamePhase.
+     * @param iGoFirst True if the BattleshipClient of this GameWindow is making the first move of the game
+     */
     public void gamePhase(boolean iGoFirst) {
         SIDE_PANEL.gamePhase(iGoFirst);
         removeShipPlacementListener();
         if (iGoFirst) {
             OPPONENTS_BOARD.addSquareListeners();
-
         }
     }
 
-    //detta är motsvarande receive click
+    /**
+     * Actions to take for a ship to be placed on the OWN_BOARD-Playing board of this GameWindow .
+     * @param startRow  The row of the first Square on the Playing board that will hold the ship
+     * @param startColumn The column of the first Square on the Playing board that will hold the ship
+     * @param shipSize Number of Squares that the ship will occupy
+     * @param orientation The orientation of the ship
+     */
     public void placeShipOnBoard(int startRow, int startColumn, int shipSize, ShipPlacementOrientation orientation) {
-        OWN_BOARD.placeShipOnMyBoard(startRow, startColumn, shipSize, orientation);
+        OWN_BOARD.placeShipOnBoard(startRow, startColumn, shipSize, orientation);
     }
 
+    /**
+     * Makes one of the two Playing boards clickable, depending on who's turn it is
+     * @param toOwnBoard True if the OWN_BOARD is to be made clickable
+     */
     public void addMouseListeners(boolean toOwnBoard) {
 
         if (toOwnBoard) {

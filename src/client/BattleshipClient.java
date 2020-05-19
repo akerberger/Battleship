@@ -2,12 +2,10 @@ package client;
 
 import gamecomponents.ShipPlacementOrientation;
 import gui.gamewindow.GameWindow;
-import server.BattleshipServer;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * Represents a user playing the game.
@@ -286,7 +284,7 @@ public class BattleshipClient {
      */
     public void switchShipPlacementDirection() {
         shipPlacementHorizontal = !shipPlacementHorizontal;
-        gameWindow.updateShipPlacementDirection(shipPlacementHorizontal);
+        gameWindow.updateShipPlacementDirectionLabel(shipPlacementHorizontal);
     }
 
     /**

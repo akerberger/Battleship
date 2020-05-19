@@ -87,11 +87,16 @@ public class Square extends JPanel {
 
     }
 
-
+    /**
+     * Makes this Square clickable
+     */
     public void addMouseListener() {
         addMouseListener(LISTENER);
     }
 
+    /**
+     * Makes this Square un-clickable
+     */
     public void removeMouseListener() {
         removeMouseListener(LISTENER);
     }
@@ -136,7 +141,7 @@ public class Square extends JPanel {
     }
 
 
-    //utöka denna definition. Samt överskugga hashcode!
+
     @Override
     public boolean equals(Object other) {
 
