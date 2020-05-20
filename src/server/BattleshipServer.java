@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Handles the hosting of a battleship game session by setting up the serverSocket object and listening for
- * two clients to connect. After a client connection is detected the client will be represented by an instance
+ * two clients to connect. After a client theSocket is detected the client will be represented by an instance
  * of the nested class ClientThread.
  *
  * During game play the BattleshipServer listens for game events from the CLIENT_THREADS. The events are passed on
@@ -24,11 +24,11 @@ public class BattleshipServer extends Thread {
 
     private InetAddress hostAddress; //the host address where the game is hosted
 
-    private MessageHandler messageHandler = new MessageHandler(this);
+    private MessageHandler messageHandler = new MessageHandler(this); //Handles messages to/from the clients
 
     private final List<ClientThread> CLIENT_THREADS = new LinkedList<>(); //The connected clients represented as ClientThread objects
 
-    private ServerSocket serverSocket; //the socket where the game is hosted by this BattleshipServer
+    private ServerSocket serverSocket; //the theSocket where the game is hosted by this BattleshipServer
 
     public BattleshipServer(int port) throws IOException {
         PORT = port;
@@ -37,41 +37,61 @@ public class BattleshipServer extends Thread {
     }
 
     /**
+     * Represents the connection of a BattleshipClient on the BattleshipServer side. The threadID will correspond to the
+     * id of the BattleshipClient that is connected through theSocket of this ClientThread object.
      *
+     * Handles communication to/from the client via in and out.
      */
     private class ClientThread extends Thread {
-        Socket connection;
-        BufferedReader in;
-        PrintWriter out;
+        Socket theSocket; //the socket representing the connection to a client
+        BufferedReader in;//handle incoming messages from the client over the connection
+        PrintWriter out; //sends messages to the client over the connection
         int threadID;
 
-
-        public ClientThread(Socket connection, int threadID) {
-            this.connection = connection;
+        /**
+         *
+         * @param socket The socket to represent the connection to the client
+         * @param threadID The id of this ClientThread object. Corresponds to the id of the BattleshipClient
+         *                 which this ClientThread object represents the connection to.
+         */
+        public ClientThread(Socket socket, int threadID) {
+            this.theSocket = socket;
             this.threadID = threadID;
 
         }
 
+        /**
+         * Sets up the out Writer and the in Reader objects. Sends an initial message to the BattleshipClient to set
+         * it's id so that it corresponds with the threadID of this ClientThread object, then listens to incoming
+         * messages from the BattleshipClient.
+         */
         @Override
         public void run() {
 
             try {
-                out = new PrintWriter(new OutputStreamWriter(connection.getOutputStream()), true);
+                out = new PrintWriter(new OutputStreamWriter(theSocket.getOutputStream()), true);
                 outputMessage("" + " " + "setID " + threadID);
 
-                in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                in = new BufferedReader(new InputStreamReader(theSocket.getInputStream()));
                 String msg;
 
-                //null om egna spelaren stänger fönstret, "socketTimeOut" om egna spelaren inaktiv för länge
+                /**
+                 * Listen for incoming messages from the BattleshipClient.
+                 *
+                 * Listen as long as the incoming message not indicates that the client has disconnected.
+                 * Such indication can happen if the message == null (indicating e.g. that the client has closed it's window)
+                 * or if the message equals "socketTimedOut" (indicating that the client has been inactive too long)
+                 */
                 while ((msg = in.readLine()) != null && !msg.equals("socketTimedOut")) {
 
                     receiveMessageFromClientThread(msg);
 
-                    Thread.sleep(20);
+                    Thread.sleep(20); //pause the thread to let potential other queued events happen
                 }
-
+                //cleanup after client disconnection.
+                //the out object isn't closed here as the actionsOnClientDisconnect method needs it.
                 in.close();
-                connection.close();
+                theSocket.close();
 
             } catch (IOException ioe) {
                 ioe.printStackTrace();
@@ -79,7 +99,7 @@ public class BattleshipServer extends Thread {
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
-            actionsForKillThread(threadID);
+            actionsOnClientDisconnect(threadID);
             out.close();
         }
 
@@ -87,6 +107,10 @@ public class BattleshipServer extends Thread {
             return threadID;
         }
 
+        /**
+         * send a message to the BattleshipClient
+         * @param msg the message
+         */
         private void outputMessage(String msg) {
 
             out.println(msg);
@@ -95,27 +119,35 @@ public class BattleshipServer extends Thread {
 
     }
 
-    void actionsForKillThread(int threadID) {
-        System.out.println("KOPPLAR IFRÅN VA");
+    /**
+     * Actions to take when a BattleshipClient has disconnected.
+     * @param threadID The threadID of the ClientThread object that has disconnected
+     */
+    void actionsOnClientDisconnect(int threadID) {
+
         synchronized (CLIENT_THREADS) {
-            removeKilledThreadFromList(threadID);
+            removeDisconnectedThreadFromList(threadID);
             notifyRemainingPlayer();
         }
     }
 
+    /**
+     * Notify the remaining player that their opponent has disconnected
+     */
     private synchronized void notifyRemainingPlayer() {
         for (ClientThread client : CLIENT_THREADS) {
             client.outputMessage("" + " " + "opponentDisconnect" + " ");
         }
     }
 
+    /**
+     * If a socket time out has occurred at some of the connected clients
+     */
     void socketTimedOut(int idOfTimedOutClient) {
-        actionsForKillThread(idOfTimedOutClient);
+        actionsOnClientDisconnect(idOfTimedOutClient);
     }
 
-    private synchronized void removeKilledThreadFromList(int idOfThreadToRemove) {
-        System.out.println("tar bord med id: " + idOfThreadToRemove + " Trådar i listan innan: " + CLIENT_THREADS.size());
-
+    private synchronized void removeDisconnectedThreadFromList(int idOfThreadToRemove) {
 
         for (int i = 0; i < CLIENT_THREADS.size(); i++) {
             if (CLIENT_THREADS.get(i).getThreadID() == idOfThreadToRemove) {
@@ -123,17 +155,26 @@ public class BattleshipServer extends Thread {
                 break;
             }
         }
-
-        System.out.println("trådar i listan efter: " + CLIENT_THREADS.size());
-
     }
 
+    /**
+     * Actions to perform when a new client has connected to this BattleshipServer.
+     *
+     * Creates a ClientThread object that will represent the connection to the newly connected client
+     * and this BattleshipServer.
+     * @param clientConnection The socket of the new client connection,
+     * @param clientThreadId The id to be given to the ClientThread object
+     */
     private void actionsForClientConnected(Socket clientConnection, int clientThreadId) {
         ClientThread clientThread = new ClientThread(clientConnection, clientThreadId);
         CLIENT_THREADS.add(clientThread);
         clientThread.start();
     }
 
+    /**
+     * Listens for, and takes necessary actions for, new connections to this BattleshipServer. The listening
+     * stops when two clients are connected and reports to the messageHandler that two clients are connected.
+     */
     @Override
     public void run() {
 
@@ -142,11 +183,11 @@ public class BattleshipServer extends Thread {
         while (CLIENT_THREADS.size() < 2) {
             try {
 
-                Socket clientConnection = serverSocket.accept();
+                Socket clientConnection = serverSocket.accept(); //listen for new connections
 
                 actionsForClientConnected(clientConnection, clientThreadId);
 
-                messageHandler.connectedPlayer(clientThreadId);
+                messageHandler.connectedPlayer(clientThreadId); //report that a client has connected
 
                 clientThreadId++;
 
@@ -156,56 +197,43 @@ public class BattleshipServer extends Thread {
 
         }
         try {
-            //väntar så att inte exeveringen kör ifrån den nya tillkopplade klienten...
-            //kanske visa laddningsskärm eller ngt så att ingen kan trycka. Eller sköta det med att ge muslyssnare
-            //innifrån two connected players....
-            Thread.sleep(1000);
+            Thread.sleep(1000); //after two players are connected, pause the thread to let necessary processes of the connection phase finnish before reporting that two players are connected
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         messageHandler.twoConnectedPlayers();
-
     }
 
 
+    /**
+     * Passes along a received message from a client thread to the message handler
+     * @param msg The message
+     */
     private synchronized void receiveMessageFromClientThread(String msg) {
 
-        for (String s : msg.split(" ")) {
-            if (s.equals("socketTimedOut")) {
-                System.out.println("FICK MESS OM BORTKOPPLAD");
-            }
-        }
-
-//        gameController.handleClientClicked(msg);
         messageHandler.handleClientMsg(msg);
 
-
     }
 
-    //from GameController. ha kontroller här så att det är en enum MessageType och att för varje sådan
-    // typ, att det aktuella meddelandet har rätt parametrar. (eller kontrollera det nån annanstans?
-    public synchronized void sendMessageToClient(int clientId, String msg) {
-
-//        System.out.println("SKICKAR TILL SPECIFIK KLIENT MED ID: "+clientId+" "+msg+" "+row+" "+column);
+    /**
+     * Transmits a message to a specific BattleshipClient via it's corresponding ClientThread object.
+     * @param threadID The threadID of the ClientThread to receive the message
+     * @param msg The message to be transmitted
+     */
+    public synchronized void sendMessageToClient(int threadID, String msg) {
 
         for (ClientThread clientThread : CLIENT_THREADS) {
-            if (clientThread.threadID == clientId) {
+            if (clientThread.threadID == threadID) {
 
                 clientThread.outputMessage(msg);
             }
         }
     }
 
-    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg) {
-        for (ClientThread clientThread : CLIENT_THREADS) {
-            if (clientThread.threadID != clientIdOfPreviousTurn) {
-                clientThread.outputMessage(msg);
-                break;
-            }
-        }
-    }
-
+    /**
+     * Transmits a message to every connected BattleshipClient via their corresponding ClientThread object
+     * @param msg The message to be transmitted
+     */
     public synchronized void broadcastMessage(String msg) {
 
         for (ClientThread client : CLIENT_THREADS) {
@@ -215,16 +243,28 @@ public class BattleshipServer extends Thread {
 
     }
 
+    /**
+     * Transmits a message to a specific BattleshipClient via it's corresponding ClientThread object to initiate
+     * a new turn.
+     * @param clientIdOfPreviousTurn The id of the BattleshipClient who just finished it's turn
+     * @param msg The message containing information to initiate a new turn
+     */
+    public synchronized void initiateNewTurn(int clientIdOfPreviousTurn, String msg) {
+        for (ClientThread clientThread : CLIENT_THREADS) {
+            if (clientThread.threadID != clientIdOfPreviousTurn) {
+                clientThread.outputMessage(msg);
+                break;
+            }
+        }
+    }
+
     public int getPort() {
         return PORT;
     }
 
-
-
-    public InetAddress getHostAddress(){
+    public InetAddress getHostAddress() {
         return hostAddress;
     }
-
 
 }
 

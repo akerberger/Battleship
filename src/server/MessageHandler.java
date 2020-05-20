@@ -13,7 +13,6 @@ public class MessageHandler {
        GAME_CONTROLLER = new GameController(SERVER);
     }
 
-
     public void connectedPlayer(int clientId){
         GAME_CONTROLLER.connectedPlayer(clientId);
     }

@@ -5,81 +5,96 @@ import gamecomponents.Square;
 
 import java.util.*;
 
+/**
+ * Receives events from the BattleshipClients, such as a shot during game play, via the BattleshipServer. Validates the
+ * events and sends result of the validation back to the clients via the BattleshipServer,
+ * informing the clients of any new game state caused by the event.
+ * <p>
+ * Holds the playerShips map that represents the players ships and checks this for each shot a player makes
+ * in order to see if the shot results in a hit (or sunken) ship.
+ * <p>
+ * Holds information about the current game state and is responsible for changing the game state
+ * when necessary. Informs the clients of when such a change occurs.
+ */
+
 public class GameController {
 
-    private GameState gameState = GameState.CONNECTION_PHASE;
+    private GameState currentGameState = GameState.CONNECTION_PHASE;
 
-    public static final int BOARD_DIMENSION = 10;
+    public static final int BOARD_DIMENSION = 10; //dimension that the playing boards should have
 
     private final int SHIPS_PER_PLAYER = 3;
 
-    private final int SHIP_SIZE = 3;
+    private int shipSize = 3; //the size of the ships to be placed by the BattleshipClients during setup phase.
+    //(defaults to 3 and does not change as of this version of the game)
 
-    //id, List of ships represented as Square arrays
+    /**
+     * The ships of each connected player. Key - the id of the player. Value - the ships of that player
+     * <p>
+     * Gets updated if e.g. a players ship is hit or sunk during a game.
+     */
     private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
 
-    private List<int[]> score = new ArrayList<>();
-
-    //Id of player that set up his/her ships first. -1 when no player have placed a ship
+    /**
+     * Id of the BattleshipClient that finished placing his/her ships first.
+     * -1 when no player have finished placing their ships
+     */
     private int firstReadyPlayer = -1;
 
-    private final BattleshipServer SERVER;
+    private final BattleshipServer THE_SERVER;
 
     public GameController(BattleshipServer server) {
-        this.SERVER = server;
+        this.THE_SERVER = server;
     }
 
-
+    /**
+     * Actions to take for initiating a game after the second BattleshipClient has
+     * connected to the BattleshipServer.
+     */
     public void twoConnectedPlayers() {
 
-        if (gameState != GameState.CONNECTION_PHASE) {
+        if (currentGameState != GameState.CONNECTION_PHASE) {
             throw new IllegalStateException("Game should be in GameState.CONNECTION_PHASE");
         }
 
-        gameState = GameState.SETUP_PHASE;
-        SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "setupPhase");
-
+        currentGameState = GameState.SETUP_PHASE;
+        THE_SERVER.broadcastMessage(currentGameState + " " + "changePhase" + " " + "setupPhase");
     }
 
+    /**
+     * Actions to take when a BattleshipClient has connected to the BattleshipServer
+     *
+     * @param clientId The id of the client that has connected
+     */
     public void connectedPlayer(int clientId) {
-        score.add(new int[]{clientId, 0});
         playerShips.put(clientId, new ArrayList<Square[]>());
     }
 
     public GameState getCurrentGameState() {
-        return gameState;
+        return currentGameState;
     }
 
-    //BoardController
-    private boolean collides(Square square, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
 
-        int checkingRow = clickedRow;
-        int checkingColumn = clickedColumn;
-
-        for (int i = 0; i < shipSize; i++) {
-            if (square.getRow() == checkingRow && square.getColumn() == checkingColumn) {
-                return true;
-            }
-            if (orientation == ShipPlacementOrientation.HORIZONTAL) {
-                checkingColumn++;
-            } else {
-                checkingRow++;
-            }
-        }
-
-        return false;
-
-    }
-
+    /**
+     * Checks if a click for placing a ship on the board would result in that ship
+     * being placed outside of the board (i.e an illegal placement)
+     *
+     * @param clickedRow    The row of the Square where the click occurred
+     * @param clickedColumn The column of the Square where the click occurred
+     * @param shipSize      The number of Squares of the ship to be placed
+     * @param orientation   The orientation of the ship to be placed (horizontal/vertical)
+     * @return False if the click would not result in the ship being outside of the board (i.e. valid placement)
+     * True if the click would result in the ship being placed outside of the board (i.e. invalid placement)
+     */
     private boolean shipOutsideOfBoard(int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
         int checkingRow = clickedRow;
         int checkingColumn = clickedColumn;
 
-        //kontrollera mot spelbrädets storlek
         for (int i = 0; i < shipSize; i++) {
             if (checkingRow > BOARD_DIMENSION || checkingColumn > BOARD_DIMENSION) {
                 return true;
             }
+            //
             if (orientation == ShipPlacementOrientation.HORIZONTAL) {
                 checkingColumn++;
             } else {
@@ -89,6 +104,17 @@ public class GameController {
         return false;
     }
 
+    /**
+     * Checks if a ship placement that a player is trying to do would result in that ship overlapping with one
+     * of that players existing ships on his/hers playing board.
+     *
+     * @param shipsOfPlayer The existing ships on the playing board of the player trying to make the ship placement
+     * @param clickedRow    The row of the Square where the click occurred and the new ship would start
+     * @param clickedColumn The column of the Square where the click occurred and the new ship would start
+     * @param shipSize      The number of Squares of the ship to be placed
+     * @param orientation   The orientation of the ship to be placed (horizontal/vertical)
+     * @return True if the new ship placement would result in an overlap with an existing ship
+     */
     private boolean shipCollision(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
 
         for (Square[] ship : shipsOfPlayer) {
@@ -101,6 +127,46 @@ public class GameController {
         return false;
     }
 
+    /**
+     * Checks if a ship would collide with a specific Square
+     *
+     * @param square      The Square which is being checked
+     * @param startRow    The row of the Square where ship starts
+     * @param startColumn The column of the Square where ship starts
+     * @param shipSize    The number of Squares of the ship
+     * @param orientation The orientation of the ship (horizontal/vertical)
+     * @return True if the ship collides with the square
+     */
+    private boolean collides(Square square, int startRow, int startColumn, int shipSize, ShipPlacementOrientation orientation) {
+
+        int checkingRow = startRow;
+        int checkingColumn = startColumn;
+
+        for (int i = 0; i < shipSize; i++) {
+            if (square.getRow() == checkingRow && square.getColumn() == checkingColumn) {
+                return true;
+            }
+            if (orientation == ShipPlacementOrientation.HORIZONTAL) {
+                checkingColumn++;
+            } else {
+                checkingRow++;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a ship placement that a player is trying to do would result in that ship exceeding the board edges (illegal move)
+     * or it it would overlap with one of that players existing ships on his/hers playing board (illegal move).
+     *
+     * @param shipsOfPlayer The existing ships on the playing board of the player trying to make the ship placement
+     * @param clickedRow    The row of the Square where the click occurred and the new ship would start
+     * @param clickedColumn The column of the Square where the click occurred and the new ship would start
+     * @param shipSize      The number of Squares of the ship to be placed
+     * @param orientation   The orientation of the ship to be placed (horizontal/vertical)
+     * @return True if the new ship placement would not result in that ship exceeding the board edges and would not overlap
+     * with one of that players existing ships.
+     */
     private boolean validShipPlacement(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
 
         if (shipOutsideOfBoard(clickedRow, clickedColumn, shipSize, orientation) ||
@@ -111,6 +177,15 @@ public class GameController {
         return true;
     }
 
+    /**
+     * Adds a new ship that a player has placed on his/her's playing board to that player's ship collection
+     *
+     * @param shipsOfPlayer The ship collection of a specific player
+     * @param clickedRow    The row of the Square where the player has clicked to place the ship
+     * @param clickedColumn The column of the Square where the player has clicked to place the ship
+     * @param shipSize      The number of Squares the new ship takes up
+     * @param orientation   The orientation of the new ship (horizontal/vertical)
+     */
     private void addShipToPlayerShips(List<Square[]> shipsOfPlayer, int clickedRow, int clickedColumn, int shipSize, ShipPlacementOrientation orientation) {
         Square[] ship = new Square[shipSize];
         shipsOfPlayer.add(ship);
@@ -124,9 +199,24 @@ public class GameController {
         }
     }
 
-
-    //MessageHandler
-    public void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) {
+    /**
+     * Actions to take when a BattleshipClient (a player) has made a click on his/her's playing board during setup phase, i.e.
+     * when a player is trying to place a ship on his/her's playing board.
+     * <p>
+     * Checks, with helper methods, if the new ship placement is legal or not and reports this back to the client.
+     * <p>
+     * Sets the specific player to be the firstReadyPlayer if he/she finished placing all the ships first
+     * <p>
+     * Initiates the game phase if both players have placed all their ships
+     *
+     * @param clientId      The id of the BattleshipClient who performed the click
+     * @param clickedRow    The row of the Square on which the click occurred.
+     * @param clickedColumn The column of the Square on which the click occurred.
+     * @param orientation   The ship orientation setting at the client who performed the click
+     * @throws IllegalArgumentException If the client who performed the click does not have a map with ship, as should have been
+     *                                  setup during the setup phase
+     */
+    public void handleClickInSetupPhase(int clientId, int clickedRow, int clickedColumn, ShipPlacementOrientation orientation) throws IllegalArgumentException {
 
         if (!playerShips.containsKey(clientId)) {
             throw new IllegalStateException("Client with id " + clientId + " should have mapping");
@@ -134,40 +224,39 @@ public class GameController {
 
         List<Square[]> shipsOfPlayer = playerShips.get(clientId);
 
-        if (!validShipPlacement(shipsOfPlayer, clickedRow, clickedColumn, SHIP_SIZE, orientation)) {
-            SERVER.sendMessageToClient(clientId, gameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
+        //Check if the new ship placement is legal. If not, report that back to the client
+        if (!validShipPlacement(shipsOfPlayer, clickedRow, clickedColumn, shipSize, orientation)) {
+            THE_SERVER.sendMessageToClient(clientId, currentGameState + " " + "notOkMove" + " " + clickedRow + " " + clickedColumn);
         } else {
+            //add the new ship to the player's ship collection
+            addShipToPlayerShips(shipsOfPlayer, clickedRow, clickedColumn, shipSize, orientation);
 
-            addShipToPlayerShips(shipsOfPlayer, clickedRow, clickedColumn, SHIP_SIZE, orientation);
-
-            SERVER.sendMessageToClient(clientId, gameState + " " + "placeShip" +
-                    " " + clickedRow + " " + clickedColumn + " " + SHIP_SIZE + " " +
+            //report legal ship placement back to the client
+            THE_SERVER.sendMessageToClient(clientId, currentGameState + " " + "placeShip" +
+                    " " + clickedRow + " " + clickedColumn + " " + shipSize + " " +
                     (orientation == ShipPlacementOrientation.HORIZONTAL ? "h" : "v"));
 
-            if (firstReadyPlayer == -1) {
+            //if the player has not yet placed all the ships, report back to the player to place another ship
+            if (shipsOfPlayer.size() < SHIPS_PER_PLAYER) {
+                THE_SERVER.sendMessageToClient(clientId, currentGameState + " " + "newShipPlacementTurn");
+                //if the player has placed all the ships and the opponent hasn't
+            } else if (firstReadyPlayer == -1) {
                 firstReadyPlayer = clientId;
             }
-
-            //om spelaren inte har placerat alla sina skepp - ta ny placeringsvända
-
-            if (shipsOfPlayer.size() < SHIPS_PER_PLAYER) {
-                //notOkMove bara för att spelaren ska få ny placeringsvända i setupphase. Ändra detta!!!
-                SERVER.sendMessageToClient(clientId, gameState + " " + "newShipPlacementTurn");
-            } else if (allPlayersReady()) {
-                //måste tråden pausas här ett tag? innan kommando för byte av fas skickas
-
-                SERVER.broadcastMessage(gameState + " " + "changePhase" + " " + "gamePhase" + " " + firstReadyPlayer);
-                gameState = GameState.GAME_PHASE;
+            //if all players has placed their ships, initiate game phase
+            else if (allPlayersReady()) {
+                THE_SERVER.broadcastMessage(currentGameState + " " + "changePhase" + " " + "gamePhase" + " " + firstReadyPlayer);
+                currentGameState = GameState.GAME_PHASE;
             }
-
-
         }
-
     }
 
+    /**
+     * Checks if every connected player have placed all the ships, as specified by SHIPS_PER_PLAYER
+     * @return False if any one of the connected players hasn't placed enough ships yet
+     */
     private boolean allPlayersReady() {
         for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-            //If a player hasn't placed all his/hers ships yet
             if (entry.getValue().size() < SHIPS_PER_PLAYER) {
                 return false;
             }
@@ -175,24 +264,37 @@ public class GameController {
         return true;
     }
 
-    //MessageHandler
+    /**
+     * Send a message to each player that a click has resulted in a sunken ship
+     * @param sunkenShip The Squares of the sunken ship. Used to get the row and column information.
+     * @param clientId The id of the BattleshipClient who performed the click resulting in the sunken ship
+     * @param clickedRow The row of the Square on which the click occurred
+     * @param clickedColumn The row of the Square on which the click occurred
+     */
     private void broadcastSinkShip(Square[] sunkenShip, int clientId, int clickedRow, int clickedColumn) {
-        StringBuilder sb = new StringBuilder();
+
+        StringBuilder rowsAndColumnOfSunkenShip = new StringBuilder();
+        //append all the rows and columns of each Square of the sunken ship, separated by a blank space
         for (int i = 0; i < sunkenShip.length; i++) {
             Square s = sunkenShip[i];
-            sb.append(s.getRow());
-            sb.append(" ");
-            sb.append(s.getColumn());
+            rowsAndColumnOfSunkenShip.append(s.getRow());
+            rowsAndColumnOfSunkenShip.append(" ");
+            rowsAndColumnOfSunkenShip.append(s.getColumn());
+            //to avoid getting a blank space after the last row/column information
             if (i + 1 < sunkenShip.length) {
-                sb.append(" ");
+                rowsAndColumnOfSunkenShip.append(" ");
             }
         }
-        SERVER.broadcastMessage(gameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + sb.toString());
+        THE_SERVER.broadcastMessage(currentGameState + " " + "sinkShip" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + sunkenShip.length + " " + rowsAndColumnOfSunkenShip.toString());
     }
 
+    /**
+     * Actions to take 
+     * @param winnerClientId
+     */
     private void setGameOver(int winnerClientId) {
-        gameState = GameState.GAME_OVER;
-        SERVER.broadcastMessage(gameState + " " + "setGameOver" + " " + winnerClientId);
+        currentGameState = GameState.GAME_OVER;
+        THE_SERVER.broadcastMessage(currentGameState + " " + "setGameOver" + " " + winnerClientId);
     }
 
 
@@ -241,17 +343,16 @@ public class GameController {
     }
 
 
-
     //MessageHandler
     public void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
 
         int resultOfShot = handleShot(clientId, clickedRow, clickedColumn);
 
         if (resultOfShot == 1) {
-            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
+            THE_SERVER.broadcastMessage(currentGameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
 
         } else if (resultOfShot == 0) {
-            SERVER.broadcastMessage(gameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
+            THE_SERVER.broadcastMessage(currentGameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "miss");
         }
 
         if (isGameOver(clientId)) {
@@ -277,7 +378,7 @@ public class GameController {
     }
 
     private void initiateNextTurn(int playerOfCurrentTurn) {
-        SERVER.initiateNewTurn(playerOfCurrentTurn, gameState + " " + "newTurn");
+        THE_SERVER.initiateNewTurn(playerOfCurrentTurn, currentGameState + " " + "newTurn");
     }
 
 
