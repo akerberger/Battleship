@@ -8,9 +8,20 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 /**
- * Handles the initiation of a game session.
+ * Handles the initiation of, or the connection to, a game session depending on whether the user
+ * has selected to host or to connect to a game.
  */
 public class GameInitiationHandler {
+
+    private int port;
+
+    /**
+     *
+     * @param port The port number that will be used for connecting to a game/initiating a game
+     */
+    public GameInitiationHandler(int port){
+        this.port = port;
+    }
 
     /**
      * Creates a BattleShipClient and a GameWindow.
@@ -21,15 +32,19 @@ public class GameInitiationHandler {
     public void handleGameInitiation(boolean isHosting) throws IOException {
 
         InetAddress hostAddress = InetAddress.getByName("localhost");
-        int defaultPort = 2000;
 
         if(isHosting) {
-            new BattleshipServer(defaultPort).start();
+            new BattleshipServer(port).start();
         }
 
-        BattleshipClient client = new BattleshipClient(hostAddress, defaultPort);
-        GameWindow window = new GameWindow(client, hostAddress, defaultPort, isHosting);
+        BattleshipClient client = new BattleshipClient(hostAddress, port);
+        GameWindow window = new GameWindow(client, hostAddress, port, isHosting);
+
         client.setGameWindow(window);
 
+    }
+
+    public int getPort(){
+        return port;
     }
 }

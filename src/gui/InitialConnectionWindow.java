@@ -45,6 +45,13 @@ public class InitialConnectionWindow extends JFrame {
          * Tries to, through the gameInitiationHandler object, initiate a new local game or connect to
          * an existing local game depending on which of the two buttons is pressed.
          *
+         * Will display a popup if an exception has been thrown by the gameInitiationHandler informing the user
+         * about:
+         * - If trying to host, the exception indicates that a local game has already been initiated at the port number provided by the user at
+         * program start (or the default port if no value was provided).
+         * - If trying to join, the exception indicates that no local game is running at the port number provided by the user at program start
+         * (or the default port if no value was provided).
+         *
          * Closes the window if the connection/game initiation is successful.
          * @param e The ActionEvent object
          */
@@ -64,7 +71,7 @@ public class InitialConnectionWindow extends JFrame {
             }
             catch (IOException ioe) {
                 JOptionPane.showMessageDialog(InitialConnectionWindow.this,
-                        hostGameBtnClicked ? "Local game is already running" :  "Could not find existing local game",
+                        hostGameBtnClicked ? "Local game is already running at port "+gameInitiationHandler.getPort() :  "Could not find existing local game on port "+gameInitiationHandler.getPort(),
                         "Error!", JOptionPane.ERROR_MESSAGE);
             }
         }
