@@ -29,9 +29,10 @@ public class GameController {
     //(defaults to 3 and does not change as of this version of the game)
 
     /**
-     * The ships of each connected player. Key - the id of the player. Value - the ships of that player
+     * The un-sunken ships of each connected player. Key - the id of the player. Value - the ships of that player
      * <p>
-     * Gets updated if e.g. a players ship is hit or sunk during a game.
+     * Gets updated if e.g. a players ship is hit or sunk during a game. A sunken ship get's removed from
+     * this map.
      */
     private Map<Integer, List<Square[]>> playerShips = new HashMap<>();
 
@@ -289,27 +290,34 @@ public class GameController {
     }
 
     /**
-     * Actions to take 
-     * @param winnerClientId
+     * Actions to take on game over
+     * @param winnerClientId The id of the BattleshipClient who won
      */
     private void setGameOver(int winnerClientId) {
         currentGameState = GameState.GAME_OVER;
         THE_SERVER.broadcastMessage(currentGameState + " " + "setGameOver" + " " + winnerClientId);
     }
 
-
-    //0 - miss, 1 - hitNotSunken, 2 - hitSunken, kanske returnera ett objekt, typ ShotResultInfo med info om sjunket skepp
-    private int handleShot(int clientId, int clickedRow, int clickedColumn) {
+    /**
+     * Calculates result of a shot performed by a BattleshipClient. Checks the opponents ships
+     * if the shot resulted in a miss, hit but not sink or a sink.
+     * @param clientId The id of the BattleshipClient who made the shot (the click)
+     * @param clickedRow The row of the Square where the click occurred
+     * @param clickedColumn The column of the Square where the click occurred
+     * @return 0 if the shot did not hit a ship
+     *         1 if the shot hit a ship but did not sink it
+     *         2 if the ship hit and sunk a ship
+     */
+    private int calculateResultOfShot(int clientId, int clickedRow, int clickedColumn) {
 
         boolean hit = false;
         boolean sunken = false;
 
         for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
-            //if opponents MapEntry
+            //if opponents ships
             if (entry.getKey() != clientId) {
-                System.out.println("GÅR IN HÄR");
                 List<Square[]> opponentShips = entry.getValue();
-                //loops through all the opponents ships that are not sunken
+                //for every ship, count the hits on the ship and check if the ship is hit by the new shot
                 for (int i = 0; i < opponentShips.size() && !hit; i++) {
                     Square[] ship = opponentShips.get(i);
                     int hitCount = 0;
@@ -317,9 +325,10 @@ public class GameController {
                         if (square.isShot()) {
                             hitCount++;
                         }
+                        //if the ship is hit by the new shot
                         if (square.getRow() == clickedRow && square.getColumn() == clickedColumn) {
                             square.setIsShot();
-                            hit = true;
+                            hit = true; //will break the loop
                             hitCount++;
                         }
                     }
@@ -329,24 +338,27 @@ public class GameController {
                         broadcastSinkShip(ship, clientId, clickedRow, clickedColumn);
                     }
                 }
-                //break efter man gått in i första Map.Entry som inte tillhör clienten som har turen nu
                 break;
             }
         }
-
-        if (sunken) {
-            return 2;
-        } else if (hit) {
-            return 1;
-        }
-        return 0;
+        //return the result
+        return (sunken ? 2 : (hit ? 1 : 0));
     }
 
 
-    //MessageHandler
+    /**
+     * A click in the game phase is a shot performed by a BattleshipClient.
+     *
+     * First evaluates the result of the shot then sends a message about the result to the players.
+     *
+     * Finally checks if the shot has resulted in a game over.
+     * @param clientId The BattleshipClient that performed the shot
+     * @param clickedRow The row of the Square where the click occurred
+     * @param clickedColumn The column of the Square where the click occurred
+     */
     public void handleClickInGamePhase(int clientId, int clickedRow, int clickedColumn) {
 
-        int resultOfShot = handleShot(clientId, clickedRow, clickedColumn);
+        int resultOfShot = calculateResultOfShot(clientId, clickedRow, clickedColumn);
 
         if (resultOfShot == 1) {
             THE_SERVER.broadcastMessage(currentGameState + " " + "okMove" + " " + clientId + " " + clickedRow + " " + clickedColumn + " " + "hit");
@@ -360,11 +372,13 @@ public class GameController {
         } else {
             initiateNextTurn(clientId);
         }
-
-
     }
 
-
+    /**
+     * Check if the opponent of the currentPlayer doesn't have any ships left.
+     * @param currentPlayer The id of the BattleshipClient who's turn it is now
+     * @return True if the opponent of the currentPlayer doesn't have any ships left
+     */
     private boolean isGameOver(int currentPlayer) {
 
         for (Map.Entry<Integer, List<Square[]>> entry : playerShips.entrySet()) {
@@ -377,6 +391,10 @@ public class GameController {
         return false;
     }
 
+    /**
+     * Send message to the server with information about initiating a new turn
+     * @param playerOfCurrentTurn The id of the BattleshipClient who's turn is about to end
+     */
     private void initiateNextTurn(int playerOfCurrentTurn) {
         THE_SERVER.initiateNewTurn(playerOfCurrentTurn, currentGameState + " " + "newTurn");
     }

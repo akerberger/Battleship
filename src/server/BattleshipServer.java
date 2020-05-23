@@ -257,15 +257,6 @@ public class BattleshipServer extends Thread {
             }
         }
     }
-
-    public int getPort() {
-        return PORT;
-    }
-
-    public InetAddress getHostAddress() {
-        return hostAddress;
-    }
-
 }
 
 

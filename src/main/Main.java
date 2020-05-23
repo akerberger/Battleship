@@ -13,6 +13,11 @@ public class Main {
      * @param args - unused
      */
     public static void main(String [] args){
+
+        int defaultPort = 2000;
+
+        int port = args.length>0 ? Integer.parseInt(args[0]) : defaultPort;
+
         new InitialConnectionWindow(new GameInitiationHandler());
     }
 }
